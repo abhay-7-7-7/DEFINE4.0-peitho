@@ -1,0 +1,117 @@
+﻿Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 85.0.0 (108.0.0 available)
+  analyzer 7.6.0 (14.4.0 available)
+  analyzer_plugin 0.13.4 (0.14.17 available)
+  build 2.5.4 (4.0.11 available)
+  build_config 1.1.2 (1.3.3 available)
+  build_resolvers 2.5.4 (3.0.4 available)
+  build_runner 2.5.4 (2.16.1 available)
+  build_runner_core 9.1.2 (9.3.2 available)
+  code_assets 1.2.1 (2.1.0 available)
+  custom_lint_core 0.7.5 (0.8.2 available)
+  custom_lint_visitor 1.0.0+7.7.0 (1.0.0+9.0.0 available)
+  dart_style 3.1.1 (3.1.13 available)
+  equatable 2.1.0 (3.0.0 available)
+  fl_chart 0.68.0 (1.2.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_riverpod 2.6.1 (3.4.3 available)
+  go_router 13.2.5 (18.0.2 available)
+  google_fonts 6.3.3 (9.0.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  intl 0.19.0 (0.20.3 available)
+  lints 3.0.0 (6.1.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  package_config 2.2.0 (3.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  riverpod 2.6.1 (3.4.3 available)
+  riverpod_annotation 2.6.1 (4.0.7 available)
+  riverpod_generator 2.6.5 (4.0.9 available)
+  source_gen 2.0.0 (4.3.0 available)
+  test_api 0.7.12 (0.7.14 available)
+  vector_math 2.4.0 (2.4.3 available)
+Got dependencies!
+32 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing boldkit_flutter...                                    
+
+warning - Unused import: 'package:flutter/material.dart'. Try removing the import directive - lib\core\router.dart:1:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\core\widgets\bk_ascii_shape.dart:112:16 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\core\widgets\bk_ascii_shape.dart:113:18 - deprecated_member_use
+   info - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' - lib\core\widgets\bk_canvas_effects.dart:276:9 - prefer_const_declarations
+   info - Statements in a for should be enclosed in a block. Try wrapping the statement in a block - lib\core\widgets\bk_input.dart:355:35 - curly_braces_in_flow_control_structures
+   info - Statements in a for should be enclosed in a block. Try wrapping the statement in a block - lib\core\widgets\bk_input.dart:356:34 - curly_braces_in_flow_control_structures
+warning - The value of the local variable 'animation' isn't used. Try removing the variable or using it - lib\core\widgets\bk_marquee.dart:50:11 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement - lib\core\widgets\bk_math_curve.dart:263:56 - deprecated_member_use
+   info - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' - lib\core\widgets\bk_progress.dart:88:17 - prefer_const_declarations
+   info - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' - lib\core\widgets\bk_spinner.dart:140:5 - prefer_const_declarations
+   info - Dangling library doc comment. Add a 'library' directive after the library comment - lib\data\mock_data.dart:1:1 - dangling_library_doc_comments
+   info - The private field _asciiSize could be 'final'. Try making the field 'final' - lib\features\ascii_effects\ascii_effects_screen.dart:18:15 - prefer_final_fields
+   info - The private field _asciiSpeed could be 'final'. Try making the field 'final' - lib\features\ascii_effects\ascii_effects_screen.dart:20:16 - prefer_final_fields
+  error - Invalid constant value - lib\features\ascii_effects\ascii_effects_screen.dart:243:19 - invalid_constant
+  error - The named parameter 'value' is required, but there's no corresponding argument. Try adding the required argument - lib\features\ascii_effects\ascii_effects_screen.dart:243:19 - missing_required_argument
+  error - The values in a const list literal must be constants. Try removing the keyword 'const' from the list literal - lib\features\ascii_effects\ascii_effects_screen.dart:243:19 - non_constant_list_element
+  error - The named parameter 'progress' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'progress' - lib\features\ascii_effects\ascii_effects_screen.dart:243:69 - undefined_named_parameter
+warning - A value for optional parameter 'maxLines' isn't ever given. Try removing the unused parameter - lib\features\blocks\auth\login_screen.dart:267:10 - unused_element_parameter
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\features\blocks\auth\otp_screen.dart:95:40 - use_build_context_synchronously
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\blocks\invoice\invoice_screen.dart:59:33 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\blocks\invoice\invoice_screen.dart:60:29 - undefined_named_parameter
+  error - The named parameter 'rows' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'rows' - lib\features\blocks\marketing\contact_screen.dart:102:23 - undefined_named_parameter
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\blocks\marketing\pricing_screen.dart:62:21 - prefer_const_constructors
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\blocks\marketing\pricing_screen.dart:62:21 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\blocks\marketing\pricing_screen.dart:62:29 - undefined_named_parameter
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\blocks\marketing\pricing_screen.dart:85:31 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\blocks\marketing\pricing_screen.dart:85:39 - undefined_named_parameter
+warning - The value of the field '_name' isn't used. Try removing the field, or using it - lib\features\blocks\onboarding\onboarding_screen.dart:16:10 - unused_field
+  error - The named parameter 'initialValue' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'initialValue' - lib\features\blocks\settings\settings_screen.dart:122:47 - undefined_named_parameter
+  error - The named parameter 'initialValue' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'initialValue' - lib\features\blocks\settings\settings_screen.dart:124:51 - undefined_named_parameter
+  error - The named parameter 'initialValue' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'initialValue' - lib\features\blocks\settings\settings_screen.dart:126:44 - undefined_named_parameter
+   info - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' - lib\features\charts\charts_screen.dart:28:5 - prefer_const_declarations
+  error - The named parameter 'children' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'children' - lib\features\charts\charts_screen.dart:55:9 - undefined_named_parameter
+   info - The private field _selectedVariantIndex could be 'final'. Try making the field 'final' - lib\features\components\component_detail_screen.dart:17:7 - prefer_final_fields
+warning - The value of the field '_selectedVariantIndex' isn't used. Try removing the field, or using it - lib\features\components\component_detail_screen.dart:17:7 - unused_field
+  error - The named parameter 'children' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'children' - lib\features\components\component_detail_screen.dart:57:9 - undefined_named_parameter
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\components\component_detail_screen.dart:66:46 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\components\component_detail_screen.dart:66:54 - undefined_named_parameter
+   info - Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' - lib\features\components\component_detail_screen.dart:176:9 - prefer_const_declarations
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\components\component_detail_screen.dart:228:20 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\components\component_detail_screen.dart:228:28 - undefined_named_parameter
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\components\component_detail_screen.dart:283:16 - prefer_const_constructors
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\components\components_screen.dart:154:37 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\components\components_screen.dart:155:39 - undefined_named_parameter
+warning - Unused import: '../../core/widgets/bk_shadow.dart'. Try removing the import directive - lib\features\home\home_screen.dart:8:8 - unused_import
+  error - The named parameter 'children' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'children' - lib\features\shapes\shape_builder_screen.dart:56:9 - undefined_named_parameter
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:21:5 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:21:24 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:21:43 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:21:62 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:22:5 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:22:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:22:41 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:22:60 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:23:5 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:23:21 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:23:40 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:23:59 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:24:5 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:24:23 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:24:42 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:24:61 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:25:5 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:25:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:25:41 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:25:60 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:189:25 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes. Try adding 'const' before the literal - lib\features\theme_builder\theme_builder_screen.dart:190:37 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:191:29 - prefer_const_constructors
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\theme_builder\theme_builder_screen.dart:191:29 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\theme_builder\theme_builder_screen.dart:191:37 - undefined_named_parameter
+   info - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation - lib\features\theme_builder\theme_builder_screen.dart:193:29 - prefer_const_constructors
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - lib\features\theme_builder\theme_builder_screen.dart:193:29 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - lib\features\theme_builder\theme_builder_screen.dart:193:37 - undefined_named_parameter
+warning - Unused import: 'package:google_fonts/google_fonts.dart'. Try removing the import directive - lib\main.dart:5:8 - unused_import
+  error - The named parameter 'label' is required, but there's no corresponding argument. Try adding the required argument - test\widget_test.dart:62:17 - missing_required_argument
+  error - The named parameter 'text' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'text' - test\widget_test.dart:63:13 - undefined_named_parameter
+
