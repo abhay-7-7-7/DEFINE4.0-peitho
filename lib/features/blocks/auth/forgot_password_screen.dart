@@ -36,7 +36,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(
         title: Text(
           'RECOVERY',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w900, letterSpacing: 1.0),
+          style: GoogleFonts.outfit(
+              fontWeight: FontWeight.w900, letterSpacing: 1.0),
         ),
         backgroundColor: t.background,
         elevation: 0,
@@ -61,7 +62,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             width: 64,
                             height: 64,
                             color: t.success,
-                            child: Icon(Icons.check, size: 36, color: t.successForeground),
+                            child: Icon(Icons.check,
+                                size: 36, color: t.successForeground),
                           ),
                           const SizedBox(height: 20),
                           Text(
@@ -76,7 +78,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           Text(
                             'We sent a password reset link to ${_emailController.text}. Please check your inbox.',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(fontSize: 14, color: t.mutedForeground),
+                            style: GoogleFonts.outfit(
+                                fontSize: 14, color: t.mutedForeground),
                           ),
                           const SizedBox(height: 24),
                           BkButton(
@@ -102,7 +105,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Enter your email and we will send you a link to reset your account password.',
-                            style: GoogleFonts.outfit(fontSize: 14, color: t.mutedForeground),
+                            style: GoogleFonts.outfit(
+                                fontSize: 14, color: t.mutedForeground),
                           ),
                           const SizedBox(height: 24),
                           BkInput(
@@ -110,7 +114,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             label: 'EMAIL',
                             hint: 'alex@example.com',
                             keyboardType: TextInputType.emailAddress,
-                            prefix: Icon(Icons.mail_outline, color: t.foreground),
+                            prefix:
+                                Icon(Icons.mail_outline, color: t.foreground),
                           ),
                           const SizedBox(height: 24),
                           BkButton(

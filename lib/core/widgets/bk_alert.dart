@@ -26,9 +26,21 @@ class BkAlert extends StatelessWidget {
 
     final (bg, fg, defaultIcon) = switch (variant) {
       BkAlertVariant.info => (t.info, t.infoForeground, Icons.info_outline),
-      BkAlertVariant.success => (t.success, t.successForeground, Icons.check_circle_outline),
-      BkAlertVariant.warning => (t.warning, t.warningForeground, Icons.warning_amber_outlined),
-      BkAlertVariant.destructive => (t.destructive, t.destructiveForeground, Icons.error_outline),
+      BkAlertVariant.success => (
+          t.success,
+          t.successForeground,
+          Icons.check_circle_outline
+        ),
+      BkAlertVariant.warning => (
+          t.warning,
+          t.warningForeground,
+          Icons.warning_amber_outlined
+        ),
+      BkAlertVariant.destructive => (
+          t.destructive,
+          t.destructiveForeground,
+          Icons.error_outline
+        ),
     };
 
     return Container(

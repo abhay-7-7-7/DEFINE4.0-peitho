@@ -30,7 +30,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       backgroundColor: t.background,
       appBar: AppBar(
-        title: Text('GETTING STARTED', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
+        title: Text('GETTING STARTED',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
         backgroundColor: t.background,
         elevation: 0,
         bottom: PreferredSize(
@@ -57,14 +58,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               BkCard(
                 child: Padding(
                   padding: const EdgeInsets.all(28),
-                  child: _buildCurrentStep(t),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, anim) => FadeTransition(
+                      opacity: anim,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                                begin: const Offset(0.08, 0), end: Offset.zero)
+                            .animate(anim),
+                        child: child,
+                      ),
+                    ),
+                    child: KeyedSubtree(
+                      key: ValueKey(_currentStep),
+                      child: _buildCurrentStep(t),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Actions
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 12,
                 children: [
                   if (_currentStep > 0)
                     BkButton(
@@ -76,7 +95,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   else
                     const SizedBox.shrink(),
                   BkButton(
-                    label: _currentStep == _steps.length - 1 ? 'GO TO DASHBOARD' : 'CONTINUE',
+                    label: _currentStep == _steps.length - 1
+                        ? 'GO TO DASHBOARD'
+                        : 'CONTINUE',
                     variant: BkButtonVariant.primary,
                     size: BkButtonSize.defaultSize,
                     onPressed: () {
@@ -102,9 +123,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('WELCOME TO BOLDKIT', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900)),
+            Text('WELCOME TO BOLDKIT',
+                style: GoogleFonts.outfit(
+                    fontSize: 20, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            Text('Let\'s personalize your workspace experience.', style: GoogleFonts.outfit(color: t.mutedForeground)),
+            Text('Let\'s personalize your workspace experience.',
+                style: GoogleFonts.outfit(color: t.mutedForeground)),
             const SizedBox(height: 24),
             const BkInput(
               label: 'YOUR NAME',
@@ -113,13 +137,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         );
       case 1:
-        final sizes = ['Just me (1)', '1-5 people', '6-20 people', '20+ people'];
+        final sizes = [
+          'Just me (1)',
+          '1-5 people',
+          '6-20 people',
+          '20+ people'
+        ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('SELECT TEAM SIZE', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900)),
+            Text('SELECT TEAM SIZE',
+                style: GoogleFonts.outfit(
+                    fontSize: 20, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            Text('We calibrate resource allocations based on team size.', style: GoogleFonts.outfit(color: t.mutedForeground)),
+            Text('We calibrate resource allocations based on team size.',
+                style: GoogleFonts.outfit(color: t.mutedForeground)),
             const SizedBox(height: 20),
             Column(
               children: sizes.map((s) {
@@ -132,21 +164,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: isSelected ? t.primary : t.card,
-                        border: Border.all(color: t.border, width: t.borderWidth),
-                        boxShadow: isSelected ? [BoxShadow(color: t.shadowColor, offset: const Offset(3, 3))] : null,
+                        border:
+                            Border.all(color: t.border, width: t.borderWidth),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                    color: t.shadowColor,
+                                    offset: const Offset(3, 3))
+                              ]
+                            : null,
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                            color: isSelected ? t.primaryForeground : t.foreground,
+                            isSelected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_off,
+                            color:
+                                isSelected ? t.primaryForeground : t.foreground,
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            s.toUpperCase(),
-                            style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? t.primaryForeground : t.foreground,
+                          Expanded(
+                            child: Text(
+                              s.toUpperCase(),
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.bold,
+                                color: isSelected
+                                    ? t.primaryForeground
+                                    : t.foreground,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -159,13 +207,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         );
       case 2:
-        final cases = ['Mobile App', 'Web Dashboard', 'Design System', 'Personal Portfolio'];
+        final cases = [
+          'Mobile App',
+          'Web Dashboard',
+          'Design System',
+          'Personal Portfolio'
+        ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('WHAT ARE YOU BUILDING?', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900)),
+            Text('WHAT ARE YOU BUILDING?',
+                style: GoogleFonts.outfit(
+                    fontSize: 20, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            Text('Choose all that apply.', style: GoogleFonts.outfit(color: t.mutedForeground)),
+            Text('Choose all that apply.',
+                style: GoogleFonts.outfit(color: t.mutedForeground)),
             const SizedBox(height: 20),
             Wrap(
               spacing: 10,
@@ -183,11 +239,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: isChecked ? t.secondary : t.card,
                       border: Border.all(color: t.border, width: t.borderWidth),
-                      boxShadow: isChecked ? [BoxShadow(color: t.shadowColor, offset: const Offset(3, 3))] : null,
+                      boxShadow: isChecked
+                          ? [
+                              BoxShadow(
+                                  color: t.shadowColor,
+                                  offset: const Offset(3, 3))
+                            ]
+                          : null,
                     ),
                     child: Text(
                       c.toUpperCase(),
@@ -210,10 +273,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               width: 72,
               height: 72,
               color: t.accent,
-              child: Icon(Icons.celebration, size: 40, color: t.accentForeground),
+              child:
+                  Icon(Icons.celebration, size: 40, color: t.accentForeground),
             ),
             const SizedBox(height: 20),
-            Text('YOU\'RE ALL SET!', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w900)),
+            Text('YOU\'RE ALL SET!',
+                style: GoogleFonts.outfit(
+                    fontSize: 24, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
             Text(
               'Your brutalist design workspace is ready. Build something bold.',

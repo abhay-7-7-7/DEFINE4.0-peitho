@@ -18,7 +18,8 @@ class BkMarquee extends StatefulWidget {
   State<BkMarquee> createState() => _BkMarqueeState();
 }
 
-class _BkMarqueeState extends State<BkMarquee> with SingleTickerProviderStateMixin {
+class _BkMarqueeState extends State<BkMarquee>
+    with SingleTickerProviderStateMixin {
   late ScrollController _scrollController;
   late AnimationController _animationController;
 
@@ -44,7 +45,8 @@ class _BkMarqueeState extends State<BkMarquee> with SingleTickerProviderStateMix
 
     final durationSeconds = maxScroll / widget.speed;
 
-    _animationController.duration = Duration(milliseconds: (durationSeconds * 1000).round());
+    _animationController.duration =
+        Duration(milliseconds: (durationSeconds * 1000).round());
     _animationController.reset();
 
     Tween<double>(begin: 0, end: maxScroll).animate(_animationController)

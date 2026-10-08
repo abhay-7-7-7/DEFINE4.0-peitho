@@ -38,7 +38,8 @@ class SettingsAboutScreen extends ConsumerWidget {
           // Theme mode section
           _SectionHeader(label: 'APPEARANCE', t: t),
           const SizedBox(height: 12),
-          _ThemeModeSelector(t: t, mode: themeMode, onChanged: notifier.setMode),
+          _ThemeModeSelector(
+              t: t, mode: themeMode, onChanged: notifier.setMode),
           const SizedBox(height: 32),
 
           // App info
@@ -57,7 +58,9 @@ class SettingsAboutScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               color: t.accent,
               border: Border.all(color: t.border, width: 3),
-              boxShadow: [BoxShadow(color: t.shadowColor, offset: const Offset(4, 4))],
+              boxShadow: [
+                BoxShadow(color: t.shadowColor, offset: const Offset(4, 4))
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +146,9 @@ class SettingsAboutScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               color: t.card,
               border: Border.all(color: t.border, width: 3),
-              boxShadow: [BoxShadow(color: t.shadowColor, offset: const Offset(4, 4))],
+              boxShadow: [
+                BoxShadow(color: t.shadowColor, offset: const Offset(4, 4))
+              ],
             ),
             child: Text(
               'BoldKit Flutter is a production-quality port of the BoldKit neubrutalism UI library. '
@@ -167,7 +172,9 @@ class SettingsAboutScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: t.background,
                 border: Border.all(color: t.border, width: 3),
-                boxShadow: [BoxShadow(color: t.shadowColor, offset: const Offset(4, 4))],
+                boxShadow: [
+                  BoxShadow(color: t.shadowColor, offset: const Offset(4, 4))
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -236,12 +243,15 @@ class _InfoRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: t.mutedForeground),
+              style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w600, color: t.mutedForeground),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(width: 8),
-          Text(value, style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: t.foreground)),
+          Text(value,
+              style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w700, color: t.foreground)),
         ],
       ),
     );
@@ -249,7 +259,8 @@ class _InfoRow extends StatelessWidget {
 }
 
 class _ThemeModeSelector extends StatelessWidget {
-  const _ThemeModeSelector({required this.t, required this.mode, required this.onChanged});
+  const _ThemeModeSelector(
+      {required this.t, required this.mode, required this.onChanged});
   final BkTokens t;
   final ThemeMode mode;
   final ValueChanged<ThemeMode> onChanged;
@@ -261,8 +272,16 @@ class _ThemeModeSelector extends StatelessWidget {
         final idx = entry.key;
         final m = entry.value;
         final isSelected = mode == m;
-        final labels = {ThemeMode.light: 'LIGHT', ThemeMode.dark: 'DARK', ThemeMode.system: 'SYSTEM'};
-        final icons = {ThemeMode.light: Icons.light_mode, ThemeMode.dark: Icons.dark_mode, ThemeMode.system: Icons.settings_suggest};
+        final labels = {
+          ThemeMode.light: 'LIGHT',
+          ThemeMode.dark: 'DARK',
+          ThemeMode.system: 'SYSTEM'
+        };
+        final icons = {
+          ThemeMode.light: Icons.light_mode,
+          ThemeMode.dark: Icons.dark_mode,
+          ThemeMode.system: Icons.settings_suggest
+        };
         return Expanded(
           child: Padding(
             padding: EdgeInsets.only(right: idx < 2 ? 8 : 0),
@@ -275,12 +294,19 @@ class _ThemeModeSelector extends StatelessWidget {
                   color: isSelected ? t.primary : t.background,
                   border: Border.all(color: t.border, width: 3),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: t.shadowColor, offset: const Offset(3, 3))]
+                      ? [
+                          BoxShadow(
+                              color: t.shadowColor, offset: const Offset(3, 3))
+                        ]
                       : [],
                 ),
                 child: Column(
                   children: [
-                    Icon(icons[m], color: isSelected ? t.primaryForeground : t.mutedForeground, size: 20),
+                    Icon(icons[m],
+                        color: isSelected
+                            ? t.primaryForeground
+                            : t.mutedForeground,
+                        size: 20),
                     const SizedBox(height: 4),
                     Text(
                       labels[m]!,
@@ -288,7 +314,9 @@ class _ThemeModeSelector extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1,
-                        color: isSelected ? t.primaryForeground : t.mutedForeground,
+                        color: isSelected
+                            ? t.primaryForeground
+                            : t.mutedForeground,
                       ),
                     ),
                   ],

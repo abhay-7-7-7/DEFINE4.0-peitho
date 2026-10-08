@@ -59,7 +59,8 @@ class _BkTabsState extends State<BkTabs> {
                 },
                 child: Container(
                   margin: const EdgeInsets.only(right: 6, bottom: 6),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     color: isSelected ? activeBg : t.card,
                     border: Border.all(color: t.border, width: t.borderWidth),
@@ -80,7 +81,8 @@ class _BkTabsState extends State<BkTabs> {
                         Icon(
                           item.icon,
                           size: 16,
-                          color: isSelected ? t.primaryForeground : t.foreground,
+                          color:
+                              isSelected ? t.primaryForeground : t.foreground,
                         ),
                         const SizedBox(width: 6),
                       ],
@@ -90,7 +92,8 @@ class _BkTabsState extends State<BkTabs> {
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
-                          color: isSelected ? t.primaryForeground : t.foreground,
+                          color:
+                              isSelected ? t.primaryForeground : t.foreground,
                         ),
                       ),
                     ],

@@ -14,7 +14,8 @@ class Error500Screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: t.background,
       appBar: AppBar(
-        title: Text('500 SERVER ERROR', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
+        title: Text('500 SERVER ERROR',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
         backgroundColor: t.background,
         elevation: 0,
         bottom: PreferredSize(
@@ -43,7 +44,8 @@ class Error500Screen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: t.card,
                   border: Border.all(color: t.border, width: t.borderWidth),
@@ -66,7 +68,8 @@ class Error500Screen extends StatelessWidget {
                 child: Text(
                   'Our servers encountered an unexpected condition. Engineers have been deployed to fix it immediately.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(fontSize: 14, color: t.mutedForeground, height: 1.5),
+                  style: GoogleFonts.outfit(
+                      fontSize: 14, color: t.mutedForeground, height: 1.5),
                 ),
               ),
               const SizedBox(height: 28),

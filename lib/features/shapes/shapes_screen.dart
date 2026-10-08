@@ -14,7 +14,14 @@ class ShapesScreen extends StatefulWidget {
 class _ShapesScreenState extends State<ShapesScreen> {
   String _selectedCategory = 'All';
 
-  final _categories = ['All', 'Geometric', 'Organic', 'Celestial', 'Mathematical', 'Mechanical'];
+  final _categories = [
+    'All',
+    'Geometric',
+    'Organic',
+    'Celestial',
+    'Mathematical',
+    'Mechanical'
+  ];
 
   final _shapes = const [
     // Geometric
@@ -109,12 +116,18 @@ class _ShapesScreenState extends State<ShapesScreen> {
                       child: GestureDetector(
                         onTap: () => setState(() => _selectedCategory = cat),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
                             color: isSelected ? t.primary : t.card,
-                            border: Border.all(color: t.border, width: t.borderWidth),
+                            border: Border.all(
+                                color: t.border, width: t.borderWidth),
                             boxShadow: isSelected
-                                ? [BoxShadow(color: t.shadowColor, offset: const Offset(3, 3))]
+                                ? [
+                                    BoxShadow(
+                                        color: t.shadowColor,
+                                        offset: const Offset(3, 3))
+                                  ]
                                 : null,
                           ),
                           child: Text(
@@ -123,7 +136,9 @@ class _ShapesScreenState extends State<ShapesScreen> {
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.5,
-                              color: isSelected ? t.primaryForeground : t.foreground,
+                              color: isSelected
+                                  ? t.primaryForeground
+                                  : t.foreground,
                             ),
                           ),
                         ),
@@ -216,7 +231,8 @@ class _ShapesScreenState extends State<ShapesScreen> {
           const SizedBox(height: 16),
           Text(
             'CATEGORY: ${shape.category.toUpperCase()}',
-            style: GoogleFonts.dmMono(fontWeight: FontWeight.bold, fontSize: 12),
+            style:
+                GoogleFonts.dmMono(fontWeight: FontWeight.bold, fontSize: 12),
           ),
           const SizedBox(height: 16),
           BkButton(

@@ -14,7 +14,8 @@ class TestimonialsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: t.background,
       appBar: AppBar(
-        title: Text('TESTIMONIALS', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
+        title: Text('TESTIMONIALS',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
         backgroundColor: t.background,
         elevation: 0,
         bottom: PreferredSize(
@@ -29,7 +30,10 @@ class TestimonialsScreen extends StatelessWidget {
           children: [
             Text(
               'WHAT DEVELOPERS SAY',
-              style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+              style: GoogleFonts.outfit(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5),
             ),
             const SizedBox(height: 8),
             Text(
@@ -47,84 +51,91 @@ class TestimonialsScreen extends StatelessWidget {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: crossAxisCount == 2 ? 1.2 : 0.88,
+                    mainAxisExtent: crossAxisCount == 2 ? 230 : 250,
                   ),
                   itemCount: mockTestimonials.length,
                   itemBuilder: (context, index) {
                     final item = mockTestimonials[index];
                     return BkCard(
                       interactive: true,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Stars
-                                Row(
-                                  children: List.generate(5, (starIdx) {
-                                    final filled = starIdx < item.rating;
-                                    return Padding(
-                                      padding: const EdgeInsets.only(right: 4),
-                                      child: Container(
-                                        width: 14,
-                                        height: 14,
-                                        color: filled ? t.accent : t.muted,
-                                      ),
-                                    );
-                                  }),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  '"${item.quote}"',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 13,
-                                    height: 1.4,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  color: Color(item.avatarColor),
-                                  child: Center(
-                                    child: Text(
-                                      item.avatarInitials,
-                                      style: GoogleFonts.outfit(fontWeight: FontWeight.w900, color: Colors.black),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Stars
+                              Row(
+                                children: List.generate(5, (starIdx) {
+                                  final filled = starIdx < item.rating;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 4),
+                                    child: Container(
+                                      width: 14,
+                                      height: 14,
+                                      color: filled ? t.accent : t.muted,
                                     ),
+                                  );
+                                }),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                '"${item.quote}"',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 13,
+                                  height: 1.35,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 4,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                color: Color(item.avatarColor),
+                                child: Center(
+                                  child: Text(
+                                    item.avatarInitials,
+                                    style: GoogleFonts.outfit(
+                                        fontWeight: FontWeight.w900,
+                                        color: t.foreground),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.author.toUpperCase(),
-                                        style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 13),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        '${item.role}, ${item.company}',
-                                        style: GoogleFonts.outfit(fontSize: 11, color: t.mutedForeground),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.author.toUpperCase(),
+                                      style: GoogleFonts.outfit(
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 13),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      '${item.role}, ${item.company}',
+                                      style: GoogleFonts.outfit(
+                                          fontSize: 11,
+                                          color: t.mutedForeground),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },

@@ -35,9 +35,12 @@ enum BkMathCurveSpeed {
 extension _SpeedExt on BkMathCurveSpeed {
   double get multiplier {
     switch (this) {
-      case BkMathCurveSpeed.slow:   return 0.4;
-      case BkMathCurveSpeed.normal: return 1.0;
-      case BkMathCurveSpeed.fast:   return 2.5;
+      case BkMathCurveSpeed.slow:
+        return 0.4;
+      case BkMathCurveSpeed.normal:
+        return 1.0;
+      case BkMathCurveSpeed.fast:
+        return 2.5;
     }
   }
 }
@@ -80,76 +83,95 @@ List<Offset> sampleCurve(BkMathCurveType curve, {int samples = 200}) {
 
 double _tMax(BkMathCurveType curve) {
   switch (curve) {
-    case BkMathCurveType.rose:        return 2 * math.pi;
-    case BkMathCurveType.lissajous:   return 2 * math.pi;
-    case BkMathCurveType.spirograph:  return 6 * math.pi;
-    case BkMathCurveType.hypotrochoid: return 6 * math.pi;
-    case BkMathCurveType.epitrochoid: return 6 * math.pi;
-    case BkMathCurveType.butterfly:   return 4 * math.pi;
-    case BkMathCurveType.fermat:      return 2 * math.pi;
-    case BkMathCurveType.maclaurin:   return 2 * math.pi;
-    case BkMathCurveType.cardioid:    return 2 * math.pi;
-    case BkMathCurveType.deltoid:     return 2 * math.pi;
+    case BkMathCurveType.rose:
+      return 2 * math.pi;
+    case BkMathCurveType.lissajous:
+      return 2 * math.pi;
+    case BkMathCurveType.spirograph:
+      return 6 * math.pi;
+    case BkMathCurveType.hypotrochoid:
+      return 6 * math.pi;
+    case BkMathCurveType.epitrochoid:
+      return 6 * math.pi;
+    case BkMathCurveType.butterfly:
+      return 4 * math.pi;
+    case BkMathCurveType.fermat:
+      return 2 * math.pi;
+    case BkMathCurveType.maclaurin:
+      return 2 * math.pi;
+    case BkMathCurveType.cardioid:
+      return 2 * math.pi;
+    case BkMathCurveType.deltoid:
+      return 2 * math.pi;
   }
 }
 
 Offset _evalCurve(BkMathCurveType curve, double t) {
   switch (curve) {
-    case BkMathCurveType.rose: {
-      const k = 3.0;
-      final r = math.cos(k * t);
-      return Offset(r * math.cos(t), r * math.sin(t));
-    }
-    case BkMathCurveType.lissajous: {
-      const a = 3.0, b = 2.0, delta = math.pi / 2;
-      return Offset(math.sin(a * t + delta), math.sin(b * t));
-    }
+    case BkMathCurveType.rose:
+      {
+        const k = 3.0;
+        final r = math.cos(k * t);
+        return Offset(r * math.cos(t), r * math.sin(t));
+      }
+    case BkMathCurveType.lissajous:
+      {
+        const a = 3.0, b = 2.0, delta = math.pi / 2;
+        return Offset(math.sin(a * t + delta), math.sin(b * t));
+      }
     case BkMathCurveType.spirograph:
-    case BkMathCurveType.hypotrochoid: {
-      const R = 5.0, r = 3.0, d = 5.0;
-      final x = (R - r) * math.cos(t) + d * math.cos((R - r) / r * t);
-      final y = (R - r) * math.sin(t) - d * math.sin((R - r) / r * t);
-      return Offset(x, y);
-    }
-    case BkMathCurveType.epitrochoid: {
-      const R = 3.0, r = 1.0, d = 2.5;
-      final x = (R + r) * math.cos(t) - d * math.cos((R + r) / r * t);
-      final y = (R + r) * math.sin(t) - d * math.sin((R + r) / r * t);
-      return Offset(x, y);
-    }
-    case BkMathCurveType.butterfly: {
-      final expSin = math.exp(math.sin(t));
-      final cos4 = 2 * math.cos(4 * t);
-      final s = math.sin((2 * t - math.pi) / 24);
-      final rVal = expSin - cos4 + s * s * s * s * s;
-      return Offset(rVal * math.cos(t), rVal * math.sin(t));
-    }
-    case BkMathCurveType.fermat: {
-      final rVal = math.sqrt(t.abs()) * (t >= 0 ? 1 : -1);
-      return Offset(rVal * math.cos(t), rVal * math.sin(t));
-    }
-    case BkMathCurveType.maclaurin: {
-      // Maclaurin trisectrix: x = a*(t^2-3)/(t^2+1), y = a*t*(t^2-3)/(t^2+1)
-      // parametric via angle
-      const a = 1.0;
-      final cosT = math.cos(t);
-      final sinT = math.sin(t);
-      // r = a * (4*cos(t) - sec(t)) in polar, but use Cartesian form
-      if (cosT.abs() < 0.01) return Offset.zero;
-      final rVal = a * (4 * cosT - 1 / cosT);
-      return Offset(rVal * cosT, rVal * sinT);
-    }
-    case BkMathCurveType.cardioid: {
-      const r = 0.5;
-      final rVal = 2 * r * (1 - math.cos(t));
-      return Offset(rVal * math.cos(t), rVal * math.sin(t));
-    }
-    case BkMathCurveType.deltoid: {
-      const R = 1.0, r = 1 / 3;
-      final x = (R - r) * math.cos(t) + r * math.cos((R - r) / r * t);
-      final y = (R - r) * math.sin(t) - r * math.sin((R - r) / r * t);
-      return Offset(x, y);
-    }
+    case BkMathCurveType.hypotrochoid:
+      {
+        const R = 5.0, r = 3.0, d = 5.0;
+        final x = (R - r) * math.cos(t) + d * math.cos((R - r) / r * t);
+        final y = (R - r) * math.sin(t) - d * math.sin((R - r) / r * t);
+        return Offset(x, y);
+      }
+    case BkMathCurveType.epitrochoid:
+      {
+        const R = 3.0, r = 1.0, d = 2.5;
+        final x = (R + r) * math.cos(t) - d * math.cos((R + r) / r * t);
+        final y = (R + r) * math.sin(t) - d * math.sin((R + r) / r * t);
+        return Offset(x, y);
+      }
+    case BkMathCurveType.butterfly:
+      {
+        final expSin = math.exp(math.sin(t));
+        final cos4 = 2 * math.cos(4 * t);
+        final s = math.sin((2 * t - math.pi) / 24);
+        final rVal = expSin - cos4 + s * s * s * s * s;
+        return Offset(rVal * math.cos(t), rVal * math.sin(t));
+      }
+    case BkMathCurveType.fermat:
+      {
+        final rVal = math.sqrt(t.abs()) * (t >= 0 ? 1 : -1);
+        return Offset(rVal * math.cos(t), rVal * math.sin(t));
+      }
+    case BkMathCurveType.maclaurin:
+      {
+        // Maclaurin trisectrix: x = a*(t^2-3)/(t^2+1), y = a*t*(t^2-3)/(t^2+1)
+        // parametric via angle
+        const a = 1.0;
+        final cosT = math.cos(t);
+        final sinT = math.sin(t);
+        // r = a * (4*cos(t) - sec(t)) in polar, but use Cartesian form
+        if (cosT.abs() < 0.01) return Offset.zero;
+        final rVal = a * (4 * cosT - 1 / cosT);
+        return Offset(rVal * cosT, rVal * sinT);
+      }
+    case BkMathCurveType.cardioid:
+      {
+        const r = 0.5;
+        final rVal = 2 * r * (1 - math.cos(t));
+        return Offset(rVal * math.cos(t), rVal * math.sin(t));
+      }
+    case BkMathCurveType.deltoid:
+      {
+        const R = 1.0, r = 1 / 3;
+        final x = (R - r) * math.cos(t) + r * math.cos((R - r) / r * t);
+        final y = (R - r) * math.sin(t) - r * math.sin((R - r) / r * t);
+        return Offset(x, y);
+      }
   }
 }
 
@@ -230,8 +252,8 @@ class _BkMathCurveLoaderState extends State<BkMathCurveLoader>
     _pts = sampleCurve(widget.curve);
     _ctrl = AnimationController(
       vsync: this,
-      duration: Duration(
-          milliseconds: (3000 / widget.speed.multiplier).round()),
+      duration:
+          Duration(milliseconds: (3000 / widget.speed.multiplier).round()),
     )..repeat();
   }
 
@@ -476,8 +498,8 @@ class _BkMathCurveBackgroundState extends State<BkMathCurveBackground>
     _pts = sampleCurve(widget.curve);
     _ctrl = AnimationController(
       vsync: this,
-      duration: Duration(
-          milliseconds: (6000 / widget.speed.multiplier).round()),
+      duration:
+          Duration(milliseconds: (6000 / widget.speed.multiplier).round()),
     )..repeat();
   }
 
@@ -505,8 +527,8 @@ class _BkMathCurveBackgroundState extends State<BkMathCurveBackground>
     final disableAnims = MediaQuery.of(context).disableAnimations;
     if (disableAnims && _ctrl.isAnimating) _ctrl.stop();
 
-    final color =
-        widget.color ?? Theme.of(context).colorScheme.primary.withValues(alpha: 0.35);
+    final color = widget.color ??
+        Theme.of(context).colorScheme.primary.withValues(alpha: 0.35);
 
     return RepaintBoundary(
       child: AnimatedBuilder(

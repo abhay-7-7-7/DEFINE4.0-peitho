@@ -125,11 +125,11 @@ class BkTokens extends ThemeExtension<BkTokens> {
     foreground: Color(0xFF181820),
     card: Color(0xFFFFFFFF),
     cardForeground: Color(0xFF181820),
-    primary: Color(0xFFEE7171),      // hsl(0,84%,71%) coral red
+    primary: Color(0xFFEE7171), // hsl(0,84%,71%) coral red
     primaryForeground: Color(0xFF181820),
-    secondary: Color(0xFF3DC9B3),    // hsl(174,62%,56%) teal
+    secondary: Color(0xFF3DC9B3), // hsl(174,62%,56%) teal
     secondaryForeground: Color(0xFF181820),
-    accent: Color(0xFFFFD849),       // hsl(49,100%,71%) yellow
+    accent: Color(0xFFFFD849), // hsl(49,100%,71%) yellow
     accentForeground: Color(0xFF181820),
     muted: Color(0xFFE6E6E0),
     mutedForeground: Color(0xFF5C5C6E),
@@ -268,7 +268,8 @@ class BkTokens extends ThemeExtension<BkTokens> {
       muted: muted ?? this.muted,
       mutedForeground: mutedForeground ?? this.mutedForeground,
       destructive: destructive ?? this.destructive,
-      destructiveForeground: destructiveForeground ?? this.destructiveForeground,
+      destructiveForeground:
+          destructiveForeground ?? this.destructiveForeground,
       success: success ?? this.success,
       successForeground: successForeground ?? this.successForeground,
       warning: warning ?? this.warning,
@@ -308,19 +309,25 @@ class BkTokens extends ThemeExtension<BkTokens> {
       card: Color.lerp(card, other.card, t)!,
       cardForeground: Color.lerp(cardForeground, other.cardForeground, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
-      primaryForeground: Color.lerp(primaryForeground, other.primaryForeground, t)!,
+      primaryForeground:
+          Color.lerp(primaryForeground, other.primaryForeground, t)!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
-      secondaryForeground: Color.lerp(secondaryForeground, other.secondaryForeground, t)!,
+      secondaryForeground:
+          Color.lerp(secondaryForeground, other.secondaryForeground, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
-      accentForeground: Color.lerp(accentForeground, other.accentForeground, t)!,
+      accentForeground:
+          Color.lerp(accentForeground, other.accentForeground, t)!,
       muted: Color.lerp(muted, other.muted, t)!,
       mutedForeground: Color.lerp(mutedForeground, other.mutedForeground, t)!,
       destructive: Color.lerp(destructive, other.destructive, t)!,
-      destructiveForeground: Color.lerp(destructiveForeground, other.destructiveForeground, t)!,
+      destructiveForeground:
+          Color.lerp(destructiveForeground, other.destructiveForeground, t)!,
       success: Color.lerp(success, other.success, t)!,
-      successForeground: Color.lerp(successForeground, other.successForeground, t)!,
+      successForeground:
+          Color.lerp(successForeground, other.successForeground, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
-      warningForeground: Color.lerp(warningForeground, other.warningForeground, t)!,
+      warningForeground:
+          Color.lerp(warningForeground, other.warningForeground, t)!,
       info: Color.lerp(info, other.info, t)!,
       infoForeground: Color.lerp(infoForeground, other.infoForeground, t)!,
       border: Color.lerp(border, other.border, t)!,
@@ -352,4 +359,9 @@ class BkTokens extends ThemeExtension<BkTokens> {
   static BkTokens of(BuildContext context) {
     return Theme.of(context).extension<BkTokens>() ?? BkTokens.light;
   }
+}
+
+/// Convenience extension — use [context.bk] anywhere instead of [BkTokens.of(context)].
+extension BkContextExtension on BuildContext {
+  BkTokens get bk => BkTokens.of(this);
 }

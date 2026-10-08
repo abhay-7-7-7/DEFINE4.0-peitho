@@ -76,7 +76,8 @@ class _BkAccordionState extends State<BkAccordion> {
               InkWell(
                 onTap: () => _toggle(index),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                   color: expanded ? t.muted.withValues(alpha: 0.3) : t.card,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -103,7 +104,8 @@ class _BkAccordionState extends State<BkAccordion> {
                           child: Icon(
                             expanded ? Icons.remove : Icons.add,
                             size: 18,
-                            color: expanded ? t.primaryForeground : t.foreground,
+                            color:
+                                expanded ? t.primaryForeground : t.foreground,
                           ),
                         ),
                       ),
@@ -115,7 +117,8 @@ class _BkAccordionState extends State<BkAccordion> {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: t.border, width: t.borderWidth)),
+                    border: Border(
+                        top: BorderSide(color: t.border, width: t.borderWidth)),
                   ),
                   child: item.content,
                 ),

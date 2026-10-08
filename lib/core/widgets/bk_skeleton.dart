@@ -17,7 +17,8 @@ class BkSkeleton extends StatefulWidget {
   State<BkSkeleton> createState() => _BkSkeletonState();
 }
 
-class _BkSkeletonState extends State<BkSkeleton> with SingleTickerProviderStateMixin {
+class _BkSkeletonState extends State<BkSkeleton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -44,7 +45,8 @@ class _BkSkeletonState extends State<BkSkeleton> with SingleTickerProviderStateM
       animation: _controller,
       builder: (context, _) {
         final factor = disableAnimations ? 0.5 : _controller.value;
-        final color = Color.lerp(t.muted, t.muted.withValues(alpha: 0.4), factor)!;
+        final color =
+            Color.lerp(t.muted, t.muted.withValues(alpha: 0.4), factor)!;
 
         return Container(
           width: widget.width,

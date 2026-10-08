@@ -122,7 +122,8 @@ class BkStatCard extends StatelessWidget {
                         height: 48,
                         decoration: BoxDecoration(
                           color: schemeColor,
-                          border: Border.all(color: t.border, width: t.borderWidth),
+                          border:
+                              Border.all(color: t.border, width: t.borderWidth),
                           boxShadow: [
                             BoxShadow(
                               color: t.shadowColor,
@@ -140,7 +141,10 @@ class BkStatCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.only(top: 12),
                     decoration: BoxDecoration(
-                      border: Border(top: BorderSide(color: t.border.withValues(alpha: 0.2), width: 2)),
+                      border: Border(
+                          top: BorderSide(
+                              color: t.border.withValues(alpha: 0.2),
+                              width: 2)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,16 +154,23 @@ class BkStatCard extends StatelessWidget {
                           children: [
                             Text(
                               progressLabel ?? 'Progress',
-                              style: GoogleFonts.outfit(fontSize: 12, color: t.mutedForeground),
+                              style: GoogleFonts.outfit(
+                                  fontSize: 12, color: t.mutedForeground),
                             ),
                             Text(
                               '${(progressValue! * 100).round()}%',
-                              style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w700, color: t.foreground),
+                              style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: t.foreground),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
-                        BkProgress(value: progressValue, height: 10, color: schemeColor),
+                        BkProgress(
+                            value: progressValue,
+                            height: 10,
+                            color: schemeColor),
                       ],
                     ),
                   ),

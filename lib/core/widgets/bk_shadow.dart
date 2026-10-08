@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../theme/bk_tokens.dart';
 
 /// Returns a [BoxDecoration] with neubrutalism hard-offset shadow and border.

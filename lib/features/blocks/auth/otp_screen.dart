@@ -50,7 +50,8 @@ class _OtpScreenState extends State<OtpScreen> {
       appBar: AppBar(
         title: Text(
           'VERIFICATION',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w900, letterSpacing: 1.0),
+          style: GoogleFonts.outfit(
+              fontWeight: FontWeight.w900, letterSpacing: 1.0),
         ),
         backgroundColor: t.background,
         elevation: 0,
@@ -82,7 +83,8 @@ class _OtpScreenState extends State<OtpScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'We sent a 6-digit verification code to al***@example.com.',
-                      style: GoogleFonts.outfit(fontSize: 14, color: t.mutedForeground),
+                      style: GoogleFonts.outfit(
+                          fontSize: 14, color: t.mutedForeground),
                     ),
                     const SizedBox(height: 28),
                     // OTP Box Row
@@ -93,9 +95,12 @@ class _OtpScreenState extends State<OtpScreen> {
                           onChanged: (code) => setState(() => _otp = code),
                           onCompleted: (code) {
                             setState(() => _otp = code);
-                            BkToastManager.show(context, message: 'Code Verified!', variant: BkToastVariant.success);
+                            BkToastManager.show(context,
+                                message: 'Code Verified!',
+                                variant: BkToastVariant.success);
                             final router = GoRouter.of(context);
-                            Future.delayed(const Duration(milliseconds: 600), () {
+                            Future.delayed(const Duration(milliseconds: 600),
+                                () {
                               if (mounted) router.go('/');
                             });
                           },
@@ -109,7 +114,9 @@ class _OtpScreenState extends State<OtpScreen> {
                       size: BkButtonSize.lg,
                       onPressed: _otp.length == 6
                           ? () {
-                              BkToastManager.show(context, message: 'Verified Successfully!', variant: BkToastVariant.success);
+                              BkToastManager.show(context,
+                                  message: 'Verified Successfully!',
+                                  variant: BkToastVariant.success);
                               context.go('/');
                             }
                           : null,

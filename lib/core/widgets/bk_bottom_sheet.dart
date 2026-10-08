@@ -47,7 +47,8 @@ Future<T?> showBkBottomSheet<T>({
               ),
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -111,7 +112,8 @@ Future<T?> showBkSideSheet<T>({
             height: double.infinity,
             decoration: BoxDecoration(
               color: t.card,
-              border: Border(left: BorderSide(color: t.border, width: t.borderWidth)),
+              border: Border(
+                  left: BorderSide(color: t.border, width: t.borderWidth)),
               boxShadow: [
                 BoxShadow(
                   color: t.shadowColor,
@@ -128,7 +130,9 @@ Future<T?> showBkSideSheet<T>({
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: t.background,
-                      border: Border(bottom: BorderSide(color: t.border, width: t.borderWidth)),
+                      border: Border(
+                          bottom: BorderSide(
+                              color: t.border, width: t.borderWidth)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,8 +150,10 @@ Future<T?> showBkSideSheet<T>({
                           onTap: () => Navigator.of(context).pop(),
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(border: Border.all(color: t.border, width: 2)),
-                            child: Icon(Icons.close, size: 16, color: t.foreground),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: t.border, width: 2)),
+                            child: Icon(Icons.close,
+                                size: 16, color: t.foreground),
                           ),
                         ),
                       ],
@@ -168,7 +174,8 @@ Future<T?> showBkSideSheet<T>({
     },
     transitionBuilder: (context, anim1, anim2, child) {
       return SlideTransition(
-        position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(
+        position:
+            Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(
           CurvedAnimation(parent: anim1, curve: Curves.easeOut),
         ),
         child: child,

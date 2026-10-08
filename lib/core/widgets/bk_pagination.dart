@@ -36,11 +36,14 @@ class BkPagination extends StatelessWidget {
         ...List.generate(totalPages, (index) {
           final page = index + 1;
           if (totalPages > maxVisible) {
-            if (page != 1 && page != totalPages && (page < currentPage - 1 || page > currentPage + 1)) {
+            if (page != 1 &&
+                page != totalPages &&
+                (page < currentPage - 1 || page > currentPage + 1)) {
               if (page == currentPage - 2 || page == currentPage + 2) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: Text('...', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text('...',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 );
               }
               return const SizedBox.shrink();
@@ -59,7 +62,10 @@ class BkPagination extends StatelessWidget {
                   color: isSelected ? t.primary : t.card,
                   border: Border.all(color: t.border, width: t.borderWidth),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: t.shadowColor, offset: const Offset(3, 3))]
+                      ? [
+                          BoxShadow(
+                              color: t.shadowColor, offset: const Offset(3, 3))
+                        ]
                       : null,
                 ),
                 child: Center(

@@ -27,7 +27,8 @@ class _FaqScreenState extends State<FaqScreen> {
     return Scaffold(
       backgroundColor: t.background,
       appBar: AppBar(
-        title: Text('FAQ', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
+        title:
+            Text('FAQ', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
         backgroundColor: t.background,
         elevation: 0,
         bottom: PreferredSize(
@@ -44,22 +45,24 @@ class _FaqScreenState extends State<FaqScreen> {
             children: [
               Text(
                 'FREQUENTLY ASKED QUESTIONS',
-                style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                style: GoogleFonts.outfit(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5),
               ),
               const SizedBox(height: 8),
               Text(
                 'Everything you need to know about the BoldKit Flutter design system.',
-                style: GoogleFonts.outfit(fontSize: 15, color: t.mutedForeground),
+                style:
+                    GoogleFonts.outfit(fontSize: 15, color: t.mutedForeground),
               ),
               const SizedBox(height: 24),
-
               BkInput(
                 hint: 'SEARCH QUESTIONS...',
                 prefix: Icon(Icons.search, color: t.foreground),
                 onChanged: (v) => setState(() => _query = v),
               ),
               const SizedBox(height: 28),
-
               BkAccordion(
                 allowMultiple: true,
                 items: filtered.map((f) {
@@ -67,7 +70,8 @@ class _FaqScreenState extends State<FaqScreen> {
                     title: f.question,
                     content: Text(
                       f.answer,
-                      style: GoogleFonts.outfit(fontSize: 14, color: t.foreground, height: 1.5),
+                      style: GoogleFonts.outfit(
+                          fontSize: 14, color: t.foreground, height: 1.5),
                     ),
                   );
                 }).toList(),

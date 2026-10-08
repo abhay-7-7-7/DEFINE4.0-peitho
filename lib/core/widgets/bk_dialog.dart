@@ -37,10 +37,13 @@ Future<T?> showBkDialog<T>({
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
                   color: t.background,
-                  border: Border(bottom: BorderSide(color: t.border, width: t.borderWidth)),
+                  border: Border(
+                      bottom:
+                          BorderSide(color: t.border, width: t.borderWidth)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,14 +80,19 @@ Future<T?> showBkDialog<T>({
               // Footer
               if (actions != null && actions.isNotEmpty)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
                     color: t.muted.withValues(alpha: 0.2),
-                    border: Border(top: BorderSide(color: t.border, width: t.borderWidth)),
+                    border: Border(
+                        top: BorderSide(color: t.border, width: t.borderWidth)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: actions.map((a) => Padding(padding: const EdgeInsets.only(left: 8), child: a)).toList(),
+                    children: actions
+                        .map((a) => Padding(
+                            padding: const EdgeInsets.only(left: 8), child: a))
+                        .toList(),
                   ),
                 ),
             ],
@@ -119,7 +127,9 @@ Future<bool?> showBkAlertDialog({
       ),
       BkButton(
         label: confirmLabel,
-        variant: isDestructive ? BkButtonVariant.destructive : BkButtonVariant.primary,
+        variant: isDestructive
+            ? BkButtonVariant.destructive
+            : BkButtonVariant.primary,
         size: BkButtonSize.sm,
         onPressed: () => Navigator.of(context).pop(true),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/bk_motion.dart';
 import '../theme/bk_tokens.dart';
 
 // ── BkCard ────────────────────────────────────────────────────────────────────
@@ -76,7 +77,10 @@ class _BkCardState extends State<BkCard> {
     if (!isInteractive) return card;
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
+      onTapDown: (_) {
+        BkMotion.hapticLight();
+        setState(() => _pressed = true);
+      },
       onTapUp: (_) {
         setState(() => _pressed = false);
         widget.onTap?.call();
@@ -237,8 +241,8 @@ class BkLayeredCard extends StatelessWidget {
       final bool isTop = i == totalCards - 1;
       final double dx = (totalCards - 1 - i) * layerOffset;
       final double dy = (totalCards - 1 - i) * layerOffset;
-      final Color color = layerColors[
-          (i - (totalCards - layerColors.length)).clamp(0, layerColors.length - 1)];
+      final Color color = layerColors[(i - (totalCards - layerColors.length))
+          .clamp(0, layerColors.length - 1)];
 
       stack.add(
         Positioned(

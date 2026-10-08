@@ -15,7 +15,8 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
 
   final _nameController = TextEditingController(text: 'Alex Chen');
   final _emailController = TextEditingController(text: 'alex@example.com');
-  final _bioController = TextEditingController(text: 'Building bold products with neubrutalism aesthetics.');
+  final _bioController = TextEditingController(
+      text: 'Building bold products with neubrutalism aesthetics.');
 
   // Notification toggles
   bool _emailAlerts = true;
@@ -38,7 +39,8 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
     return Scaffold(
       backgroundColor: t.background,
       appBar: AppBar(
-        title: Text('ACCOUNT SETTINGS', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
+        title: Text('ACCOUNT SETTINGS',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
         backgroundColor: t.background,
         elevation: 0,
         bottom: PreferredSize(
@@ -109,7 +111,9 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('PROFILE DETAILS', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w900)),
+            Text('PROFILE DETAILS',
+                style: GoogleFonts.outfit(
+                    fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 20),
             Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
@@ -123,7 +127,10 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
                   child: Center(
                     child: Text(
                       'AC',
-                      style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w900, color: t.secondaryForeground),
+                      style: GoogleFonts.outfit(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: t.secondaryForeground),
                     ),
                   ),
                 ),
@@ -146,7 +153,8 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
               label: 'SAVE CHANGES',
               variant: BkButtonVariant.primary,
               size: BkButtonSize.defaultSize,
-              onPressed: () => BkToastManager.show(context, message: 'Profile Updated!', variant: BkToastVariant.success),
+              onPressed: () => BkToastManager.show(context,
+                  message: 'Profile Updated!', variant: BkToastVariant.success),
             ),
           ],
         ),
@@ -161,22 +169,45 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('NOTIFICATION PREFERENCES', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w900)),
+            Text('NOTIFICATION PREFERENCES',
+                style: GoogleFonts.outfit(
+                    fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 20),
-            _buildNotificationRow('EMAIL ALERTS', 'Receive security and account updates', _emailAlerts, (v) => setState(() => _emailAlerts = v)),
+            _buildNotificationRow(
+                'EMAIL ALERTS',
+                'Receive security and account updates',
+                _emailAlerts,
+                (v) => setState(() => _emailAlerts = v),
+                t),
             const Divider(height: 32, thickness: 2),
-            _buildNotificationRow('PUSH NOTIFICATIONS', 'Instant updates on mobile device', _pushNotifications, (v) => setState(() => _pushNotifications = v)),
+            _buildNotificationRow(
+                'PUSH NOTIFICATIONS',
+                'Instant updates on mobile device',
+                _pushNotifications,
+                (v) => setState(() => _pushNotifications = v),
+                t),
             const Divider(height: 32, thickness: 2),
-            _buildNotificationRow('WEEKLY DIGEST', 'Summary of your workspace activity', _weeklyDigest, (v) => setState(() => _weeklyDigest = v)),
+            _buildNotificationRow(
+                'WEEKLY DIGEST',
+                'Summary of your workspace activity',
+                _weeklyDigest,
+                (v) => setState(() => _weeklyDigest = v),
+                t),
             const Divider(height: 32, thickness: 2),
-            _buildNotificationRow('MARKETING & DEALS', 'Newsletters and new feature highlights', _marketingEmails, (v) => setState(() => _marketingEmails = v)),
+            _buildNotificationRow(
+                'MARKETING & DEALS',
+                'Newsletters and new feature highlights',
+                _marketingEmails,
+                (v) => setState(() => _marketingEmails = v),
+                t),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNotificationRow(String title, String subtitle, bool val, ValueChanged<bool> onChanged) {
+  Widget _buildNotificationRow(String title, String subtitle, bool val,
+      ValueChanged<bool> onChanged, BkTokens t) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -184,9 +215,15 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w900)),
+              Text(title,
+                  style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      color: t.foreground)),
               const SizedBox(height: 4),
-              Text(subtitle, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
+              Text(subtitle,
+                  style: GoogleFonts.outfit(
+                      fontSize: 12, color: t.mutedForeground)),
             ],
           ),
         ),
@@ -202,7 +239,9 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('CURRENT PLAN', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w900)),
+            Text('CURRENT PLAN',
+                style: GoogleFonts.outfit(
+                    fontSize: 18, fontWeight: FontWeight.w900)),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
@@ -219,8 +258,14 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('PRO TIER', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900, color: t.accentForeground)),
-                      Text('\$29 / month — Renews Nov 12', style: GoogleFonts.outfit(fontSize: 13, color: t.accentForeground)),
+                      Text('PRO TIER',
+                          style: GoogleFonts.outfit(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: t.accentForeground)),
+                      Text('\$29 / month — Renews Nov 12',
+                          style: GoogleFonts.outfit(
+                              fontSize: 13, color: t.accentForeground)),
                     ],
                   ),
                   BkButton(
@@ -233,9 +278,12 @@ class _BlocksSettingsScreenState extends State<BlocksSettingsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text('PAYMENT METHOD', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w900)),
+            Text('PAYMENT METHOD',
+                style: GoogleFonts.outfit(
+                    fontSize: 16, fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            Text('Visa ending in 4242 (Expires 12/28)', style: GoogleFonts.dmMono(fontSize: 13)),
+            Text('Visa ending in 4242 (Expires 12/28)',
+                style: GoogleFonts.dmMono(fontSize: 13)),
           ],
         ),
       ),

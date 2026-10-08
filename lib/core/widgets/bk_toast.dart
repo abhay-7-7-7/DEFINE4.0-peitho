@@ -3,13 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/bk_tokens.dart';
 
-enum BkToastVariant { defaultToast, success, warning, error }
+enum BkToastVariant {
+  defaultToast,
+  success,
+  warning,
+  error;
+
+  static const info = BkToastVariant.defaultToast;
+  static const destructive = BkToastVariant.error;
+}
 
 class BkToastManager {
   BkToastManager._();
 
   static OverlayEntry? _currentEntry;
   static Timer? _dismissTimer;
+
+  static void dismiss() {
+    _dismissTimer?.cancel();
+    _dismissTimer = null;
+    _currentEntry?.remove();
+    _currentEntry = null;
+  }
 
   static void show(
     BuildContext context, {
@@ -26,9 +41,21 @@ class BkToastManager {
     final t = BkTokens.of(context);
 
     final (bg, fg, icon) = switch (variant) {
-      BkToastVariant.success => (t.success, t.successForeground, Icons.check_circle),
-      BkToastVariant.warning => (t.warning, t.warningForeground, Icons.warning_amber),
-      BkToastVariant.error => (t.destructive, t.destructiveForeground, Icons.error),
+      BkToastVariant.success => (
+          t.success,
+          t.successForeground,
+          Icons.check_circle
+        ),
+      BkToastVariant.warning => (
+          t.warning,
+          t.warningForeground,
+          Icons.warning_amber
+        ),
+      BkToastVariant.error => (
+          t.destructive,
+          t.destructiveForeground,
+          Icons.error
+        ),
       BkToastVariant.defaultToast => (t.foreground, t.background, Icons.info),
     };
 

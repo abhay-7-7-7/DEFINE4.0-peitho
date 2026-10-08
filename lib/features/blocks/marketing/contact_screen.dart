@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/bk_motion.dart';
 import '../../../core/theme/bk_tokens.dart';
 import '../../../core/widgets/bk_widgets.dart';
 
@@ -24,12 +25,24 @@ class _ContactScreenState extends State<ContactScreen> {
   }
 
   void _handleSubmit() {
-    if (_nameController.text.isNotEmpty && _emailController.text.isNotEmpty) {
-      BkToastManager.show(context, message: 'Message Sent Successfully!', variant: BkToastVariant.success);
-      _nameController.clear();
-      _emailController.clear();
-      _messageController.clear();
+    BkMotion.hapticClick();
+    if (_nameController.text.trim().isEmpty ||
+        _emailController.text.trim().isEmpty) {
+      BkToastManager.show(
+        context,
+        message: 'PLEASE PROVIDE BOTH NAME AND EMAIL',
+        variant: BkToastVariant.warning,
+      );
+      return;
     }
+    BkToastManager.show(
+      context,
+      message: 'MESSAGE TRANSMITTED SUCCESSFULLY!',
+      variant: BkToastVariant.success,
+    );
+    _nameController.clear();
+    _emailController.clear();
+    _messageController.clear();
   }
 
   @override
@@ -39,7 +52,8 @@ class _ContactScreenState extends State<ContactScreen> {
     return Scaffold(
       backgroundColor: t.background,
       appBar: AppBar(
-        title: Text('CONTACT', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
+        title: Text('CONTACT',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
         backgroundColor: t.background,
         elevation: 0,
         bottom: PreferredSize(
@@ -58,19 +72,26 @@ class _ContactScreenState extends State<ContactScreen> {
               children: [
                 Text(
                   'GET IN TOUCH',
-                  style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                  style: GoogleFonts.outfit(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Have questions about custom licenses, consulting, or component development? Let\'s talk.',
-                  style: GoogleFonts.outfit(fontSize: 15, color: t.mutedForeground),
+                  style: GoogleFonts.outfit(
+                      fontSize: 15, color: t.mutedForeground),
                 ),
                 const SizedBox(height: 24),
-                _buildInfoCard('EMAIL', 'hello@boldkit.dev', Icons.email_outlined, t),
+                _buildInfoCard(
+                    'EMAIL', 'hello@boldkit.dev', Icons.email_outlined, t),
                 const SizedBox(height: 12),
-                _buildInfoCard('OFFICE', '100 Brutalist Way, San Francisco, CA', Icons.location_on_outlined, t),
+                _buildInfoCard('OFFICE', '100 Brutalist Way, San Francisco, CA',
+                    Icons.location_on_outlined, t),
                 const SizedBox(height: 12),
-                _buildInfoCard('COMMUNITY', 'discord.gg/boldkit', Icons.forum_outlined, t),
+                _buildInfoCard(
+                    'COMMUNITY', 'discord.gg/boldkit', Icons.forum_outlined, t),
               ],
             );
 
@@ -80,7 +101,9 @@ class _ContactScreenState extends State<ContactScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('SEND A MESSAGE', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w900)),
+                    Text('SEND A MESSAGE',
+                        style: GoogleFonts.outfit(
+                            fontSize: 18, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 20),
                     BkInput(
                       controller: _nameController,
@@ -162,9 +185,16 @@ class _ContactScreenState extends State<ContactScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.w900, color: t.mutedForeground)),
+                Text(label,
+                    style: GoogleFonts.outfit(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: t.mutedForeground)),
                 const SizedBox(height: 2),
-                Text(value, style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                Text(value,
+                    style: GoogleFonts.outfit(
+                        fontSize: 13, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis),
               ],
             ),
           ),

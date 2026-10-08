@@ -29,7 +29,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _passwordCtrl.addListener(_onPasswordChanged);
+  }
+
+  void _onPasswordChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   void dispose() {
+    _passwordCtrl.removeListener(_onPasswordChanged);
     _nameCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
@@ -182,14 +193,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         obscureText: _obscurePassword,
                         validator: _validatePassword,
                         suffixIcon: GestureDetector(
-                          onTap: () => setState(() => _obscurePassword = !_obscurePassword),
+                          onTap: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
                           child: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                             color: t.mutedForeground,
                             size: 20,
                           ),
                         ),
                       ),
+                      _PasswordStrengthMeter(
+                          password: _passwordCtrl.text, t: t),
                       const SizedBox(height: 16),
                       _BkLabel(text: 'CONFIRM PASSWORD', t: t),
                       const SizedBox(height: 6),
@@ -200,9 +216,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         obscureText: _obscureConfirm,
                         validator: _validateConfirm,
                         suffixIcon: GestureDetector(
-                          onTap: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                          onTap: () => setState(
+                              () => _obscureConfirm = !_obscureConfirm),
                           child: Icon(
-                            _obscureConfirm ? Icons.visibility_off : Icons.visibility,
+                            _obscureConfirm
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                             color: t.mutedForeground,
                             size: 20,
                           ),
@@ -210,7 +229,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       const SizedBox(height: 20),
                       GestureDetector(
-                        onTap: () => setState(() => _agreedToTerms = !_agreedToTerms),
+                        onTap: () =>
+                            setState(() => _agreedToTerms = !_agreedToTerms),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -218,11 +238,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               width: 22,
                               height: 22,
                               decoration: BoxDecoration(
-                                color: _agreedToTerms ? t.primary : t.background,
+                                color:
+                                    _agreedToTerms ? t.primary : t.background,
                                 border: Border.all(color: t.border, width: 3),
                               ),
                               child: _agreedToTerms
-                                  ? Icon(Icons.check, size: 14, color: t.primaryForeground)
+                                  ? Icon(Icons.check,
+                                      size: 14, color: t.primaryForeground)
                                   : null,
                             ),
                             const SizedBox(width: 10),
@@ -273,7 +295,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         height: 52,
                         child: BkButton(
-                          label: _isLoading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT',
+                          label: _isLoading
+                              ? 'CREATING ACCOUNT...'
+                              : 'CREATE ACCOUNT',
                           isLoading: _isLoading,
                           size: BkButtonSize.lg,
                           onPressed: _submit,
@@ -364,7 +388,8 @@ class _BkField extends StatelessWidget {
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,
         validator: validator,
-        style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w500, color: t.foreground),
+        style: GoogleFonts.outfit(
+            fontSize: 15, fontWeight: FontWeight.w500, color: t.foreground),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: GoogleFonts.outfit(fontSize: 15, color: t.mutedForeground),
@@ -387,8 +412,85 @@ class _BkField extends StatelessWidget {
             borderRadius: BorderRadius.zero,
             borderSide: BorderSide(color: t.destructive, width: 3),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          errorStyle: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w600, color: t.destructive),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          errorStyle: GoogleFonts.outfit(
+              fontSize: 12, fontWeight: FontWeight.w600, color: t.destructive),
         ),
       );
+}
+
+class _PasswordStrengthMeter extends StatelessWidget {
+  const _PasswordStrengthMeter({required this.password, required this.t});
+
+  final String password;
+  final BkTokens t;
+
+  int get _score {
+    if (password.isEmpty) {
+      return 0;
+    }
+    int s = 0;
+    if (password.length >= 8) {
+      s++;
+    }
+    if (RegExp(r'[A-Z]').hasMatch(password) &&
+        RegExp(r'[a-z]').hasMatch(password)) {
+      s++;
+    }
+    if (RegExp(r'[0-9]').hasMatch(password)) {
+      s++;
+    }
+    if (RegExp(r'[^A-Za-z0-9]').hasMatch(password)) {
+      s++;
+    }
+    return s;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (password.isEmpty) return const SizedBox.shrink();
+
+    final score = _score;
+    final (label, color) = switch (score) {
+      0 || 1 => ('WEAK', t.destructive),
+      2 => ('FAIR', t.warning),
+      3 => ('GOOD', t.info),
+      4 => ('STRONG', t.success),
+      _ => ('WEAK', t.destructive),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: List.generate(4, (i) {
+              final active = i < score;
+              return Expanded(
+                child: Container(
+                  height: 6,
+                  margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
+                  decoration: BoxDecoration(
+                    color: active ? color : t.muted,
+                    border: Border.all(color: t.border, width: 1.5),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'STRENGTH: $label',
+            style: GoogleFonts.dmMono(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

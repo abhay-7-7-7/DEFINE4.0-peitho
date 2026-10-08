@@ -22,7 +22,8 @@ class BkSwitch extends StatefulWidget {
   State<BkSwitch> createState() => _BkSwitchState();
 }
 
-class _BkSwitchState extends State<BkSwitch> with SingleTickerProviderStateMixin {
+class _BkSwitchState extends State<BkSwitch>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -75,7 +76,8 @@ class _BkSwitchState extends State<BkSwitch> with SingleTickerProviderStateMixin
         child: AnimatedBuilder(
           animation: _animation,
           builder: (context, child) {
-            final trackColor = Color.lerp(inactiveTrack, activeTrack, _animation.value)!;
+            final trackColor =
+                Color.lerp(inactiveTrack, activeTrack, _animation.value)!;
             return Container(
               width: width,
               height: height,
@@ -85,7 +87,8 @@ class _BkSwitchState extends State<BkSwitch> with SingleTickerProviderStateMixin
                 boxShadow: [
                   BoxShadow(
                     color: t.shadowColor,
-                    offset: Offset(t.shadowOffset * 0.75, t.shadowOffset * 0.75),
+                    offset:
+                        Offset(t.shadowOffset * 0.75, t.shadowOffset * 0.75),
                     blurRadius: 0,
                   ),
                 ],
@@ -93,14 +96,17 @@ class _BkSwitchState extends State<BkSwitch> with SingleTickerProviderStateMixin
               child: Stack(
                 children: [
                   Positioned(
-                    left: 2 + ((width - thumbSize - (t.borderWidth * 2) - 4) * _animation.value),
+                    left: 2 +
+                        ((width - thumbSize - (t.borderWidth * 2) - 4) *
+                            _animation.value),
                     top: 2,
                     child: Container(
                       width: thumbSize,
                       height: thumbSize,
                       decoration: BoxDecoration(
                         color: t.card,
-                        border: Border.all(color: t.border, width: t.borderWidth * 0.75),
+                        border: Border.all(
+                            color: t.border, width: t.borderWidth * 0.75),
                       ),
                     ),
                   ),

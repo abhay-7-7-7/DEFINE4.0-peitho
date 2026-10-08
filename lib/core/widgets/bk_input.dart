@@ -138,9 +138,12 @@ class _BkInputState extends State<BkInput> {
                   ),
                 )
               : null,
-          prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          suffixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          prefixIconConstraints:
+              const BoxConstraints(minWidth: 44, minHeight: 44),
+          suffixIconConstraints:
+              const BoxConstraints(minWidth: 44, minHeight: 44),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -328,7 +331,8 @@ class BkOtpInput extends StatefulWidget {
     this.onCompleted,
     this.onChanged,
     this.obscureText = false,
-  }) : assert(length >= 2 && length <= 10, 'OTP length must be between 2 and 10');
+  }) : assert(
+            length >= 2 && length <= 10, 'OTP length must be between 2 and 10');
 
   final int length;
   final ValueChanged<String>? onCompleted;
@@ -384,8 +388,7 @@ class _BkOtpInputState extends State<BkOtpInput> {
 
     final currentValue = _value;
     widget.onChanged?.call(currentValue);
-    if (currentValue.length == widget.length &&
-        !currentValue.contains('') ) {
+    if (currentValue.length == widget.length && !currentValue.contains('')) {
       widget.onCompleted?.call(currentValue);
     }
     setState(() {});
@@ -405,7 +408,8 @@ class _BkOtpInputState extends State<BkOtpInput> {
           final totalNeeded = count * 48.0 + (count - 1) * 8.0;
           if (totalNeeded > availableWidth) {
             spacing = (availableWidth < 300) ? 4.0 : 6.0;
-            cellWidth = ((availableWidth - (count - 1) * spacing) / count).clamp(24.0, 48.0);
+            cellWidth = ((availableWidth - (count - 1) * spacing) / count)
+                .clamp(24.0, 48.0);
           }
         }
         final cellHeight = (cellWidth * 1.15).clamp(36.0, 56.0);
@@ -415,7 +419,8 @@ class _BkOtpInputState extends State<BkOtpInput> {
           mainAxisSize: MainAxisSize.min,
           children: List.generate(widget.length, (i) {
             return Padding(
-              padding: EdgeInsets.only(right: i < widget.length - 1 ? spacing : 0),
+              padding:
+                  EdgeInsets.only(right: i < widget.length - 1 ? spacing : 0),
               child: SizedBox(
                 width: cellWidth,
                 height: cellHeight,

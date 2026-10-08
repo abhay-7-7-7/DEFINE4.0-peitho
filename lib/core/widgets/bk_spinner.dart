@@ -20,7 +20,8 @@ class BkSpinner extends StatefulWidget {
   State<BkSpinner> createState() => _BkSpinnerState();
 }
 
-class _BkSpinnerState extends State<BkSpinner> with SingleTickerProviderStateMixin {
+class _BkSpinnerState extends State<BkSpinner>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -179,7 +180,8 @@ class _RingPainter extends CustomPainter {
       ..strokeCap = StrokeCap.square;
 
     final rect = Offset.zero & size;
-    canvas.drawArc(rect.deflate(strokeWidth / 2), 0, math.pi * 1.5, false, paint);
+    canvas.drawArc(
+        rect.deflate(strokeWidth / 2), 0, math.pi * 1.5, false, paint);
   }
 
   @override

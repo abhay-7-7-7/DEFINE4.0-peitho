@@ -5,6 +5,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import '../theme/bk_tokens.dart';
 
 // ---------------------------------------------------------------------------
 // Enums
@@ -31,9 +32,9 @@ enum BkAsciiShapeType {
 }
 
 enum BkAsciiSize {
-  sm,   // 24 cols x 12 rows
-  md,   // 48 cols x 24 rows
-  lg,   // 72 cols x 36 rows
+  sm, // 24 cols x 12 rows
+  md, // 48 cols x 24 rows
+  lg, // 72 cols x 36 rows
   hero, // 120 cols x 60 rows
 }
 
@@ -58,19 +59,27 @@ enum BkAsciiSpeed {
 extension _BkAsciiSizeExt on BkAsciiSize {
   int get cols {
     switch (this) {
-      case BkAsciiSize.sm:   return 24;
-      case BkAsciiSize.md:   return 48;
-      case BkAsciiSize.lg:   return 72;
-      case BkAsciiSize.hero: return 120;
+      case BkAsciiSize.sm:
+        return 24;
+      case BkAsciiSize.md:
+        return 48;
+      case BkAsciiSize.lg:
+        return 72;
+      case BkAsciiSize.hero:
+        return 120;
     }
   }
 
   int get rows {
     switch (this) {
-      case BkAsciiSize.sm:   return 12;
-      case BkAsciiSize.md:   return 24;
-      case BkAsciiSize.lg:   return 36;
-      case BkAsciiSize.hero: return 60;
+      case BkAsciiSize.sm:
+        return 12;
+      case BkAsciiSize.md:
+        return 24;
+      case BkAsciiSize.lg:
+        return 36;
+      case BkAsciiSize.hero:
+        return 60;
     }
   }
 }
@@ -78,9 +87,12 @@ extension _BkAsciiSizeExt on BkAsciiSize {
 extension _BkAsciiSpeedExt on BkAsciiSpeed {
   double get multiplier {
     switch (this) {
-      case BkAsciiSpeed.slow:   return 0.4;
-      case BkAsciiSpeed.normal: return 1.0;
-      case BkAsciiSpeed.fast:   return 2.2;
+      case BkAsciiSpeed.slow:
+        return 0.4;
+      case BkAsciiSpeed.normal:
+        return 1.0;
+      case BkAsciiSpeed.fast:
+        return 2.2;
     }
   }
 }
@@ -90,27 +102,46 @@ List<String> _charsetChars(BkAsciiCharset charset) {
     case BkAsciiCharset.blocks:
       return const [' ', '\u2591', '\u2592', '\u2593', '\u2588'];
     case BkAsciiCharset.braille:
-      return const [' ', '\u2801', '\u2803', '\u2807', '\u280f', '\u281f', '\u283f', '\u287f', '\u28ff'];
+      return const [
+        ' ',
+        '\u2801',
+        '\u2803',
+        '\u2807',
+        '\u280f',
+        '\u281f',
+        '\u283f',
+        '\u287f',
+        '\u28ff'
+      ];
     case BkAsciiCharset.classic:
       return const ['.', ':', 'o', '*', '#', '@'];
     case BkAsciiCharset.line:
       return const [' ', '-', '+', '/', '|', r'\', 'X', '#'];
     case BkAsciiCharset.dots:
-      return const [' ', '\u00b7', '\u2218', '\u2022', '\u25cf', '\u25c9', '\u25ce', '\u25cb'];
+      return const [
+        ' ',
+        '\u00b7',
+        '\u2218',
+        '\u2022',
+        '\u25cf',
+        '\u25c9',
+        '\u25ce',
+        '\u25cb'
+      ];
   }
 }
 
 List<Color> _multicolorPalette(BuildContext context) {
-  final cs = Theme.of(context).colorScheme;
+  final t = BkTokens.of(context);
   return [
-    cs.primary,
-    cs.secondary,
-    cs.tertiary,
-    Colors.amber,
-    Colors.cyan,
-    Colors.green,
-    cs.primary.withValues(alpha: 0.7),
-    cs.secondary.withValues(alpha: 0.7),
+    t.primary,
+    t.secondary,
+    t.accent,
+    t.warning,
+    t.info,
+    t.success,
+    t.primary.withValues(alpha: 0.7),
+    t.secondary.withValues(alpha: 0.7),
   ];
 }
 
@@ -139,28 +170,44 @@ class _AsciiGrid {
 
   List<int> compute() {
     switch (shapeType) {
-      case BkAsciiShapeType.spiral:        return _spiral();
-      case BkAsciiShapeType.wave:          return _wave();
-      case BkAsciiShapeType.sphere:        return _sphere();
-      case BkAsciiShapeType.torus:         return _torus();
-      case BkAsciiShapeType.donut:         return _torus();
-      case BkAsciiShapeType.helix:         return _helix();
-      case BkAsciiShapeType.cube:          return _cube();
-      case BkAsciiShapeType.matrix:        return _matrix();
-      case BkAsciiShapeType.rose:          return _rose();
-      case BkAsciiShapeType.vortex:        return _vortex();
-      case BkAsciiShapeType.pulse:         return _pulse();
-      case BkAsciiShapeType.dna:           return _dna();
-      case BkAsciiShapeType.trefoilKnot:   return _trefoilKnot();
-      case BkAsciiShapeType.geodesicDome:  return _geodesicDome();
-      case BkAsciiShapeType.saturn:        return _saturn();
-      case BkAsciiShapeType.hyperboloid:   return _hyperboloid();
-      case BkAsciiShapeType.grid:          return _grid();
+      case BkAsciiShapeType.spiral:
+        return _spiral();
+      case BkAsciiShapeType.wave:
+        return _wave();
+      case BkAsciiShapeType.sphere:
+        return _sphere();
+      case BkAsciiShapeType.torus:
+        return _torus();
+      case BkAsciiShapeType.donut:
+        return _torus();
+      case BkAsciiShapeType.helix:
+        return _helix();
+      case BkAsciiShapeType.cube:
+        return _cube();
+      case BkAsciiShapeType.matrix:
+        return _matrix();
+      case BkAsciiShapeType.rose:
+        return _rose();
+      case BkAsciiShapeType.vortex:
+        return _vortex();
+      case BkAsciiShapeType.pulse:
+        return _pulse();
+      case BkAsciiShapeType.dna:
+        return _dna();
+      case BkAsciiShapeType.trefoilKnot:
+        return _trefoilKnot();
+      case BkAsciiShapeType.geodesicDome:
+        return _geodesicDome();
+      case BkAsciiShapeType.saturn:
+        return _saturn();
+      case BkAsciiShapeType.hyperboloid:
+        return _hyperboloid();
+      case BkAsciiShapeType.grid:
+        return _grid();
     }
   }
 
-  int _ci(double val) =>
-      (val.clamp(0.0, 1.0) * (chars.length - 1)).round();
+  int _ci(double val) => (val.clamp(0.0, 1.0) * (chars.length - 1)).round();
 
   List<int> _spiral() {
     final cx = cols / 2.0;
@@ -172,8 +219,7 @@ class _AsciiGrid {
         final dy = (r - cy).toDouble();
         final dist = math.sqrt(dx * dx + dy * dy);
         final angle = math.atan2(dy, dx);
-        final val =
-            (math.sin(dist * 0.5 - t * 4.0 + angle * 2.0) + 1) * 0.5;
+        final val = (math.sin(dist * 0.5 - t * 4.0 + angle * 2.0) + 1) * 0.5;
         result.add(_ci(val));
       }
     }
@@ -185,8 +231,7 @@ class _AsciiGrid {
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
         final val =
-            (math.sin(c * 0.3 - t * 3.0) * math.sin(r * 0.3 + t * 2.0) +
-                    1) *
+            (math.sin(c * 0.3 - t * 3.0) * math.sin(r * 0.3 + t * 2.0) + 1) *
                 0.5;
         result.add(_ci(val));
       }
@@ -266,9 +311,7 @@ class _AsciiGrid {
       }
     }
 
-    return grid
-        .map((v) => v == -double.infinity ? 0 : _ci(v))
-        .toList();
+    return grid.map((v) => v == -double.infinity ? 0 : _ci(v)).toList();
   }
 
   List<int> _helix() {
@@ -302,15 +345,28 @@ class _AsciiGrid {
     final result = List<int>.filled(rows * cols, 0);
 
     final verts = [
-      [-1.0, -1.0, -1.0], [1.0, -1.0, -1.0],
-      [1.0,  1.0, -1.0],  [-1.0,  1.0, -1.0],
-      [-1.0, -1.0,  1.0], [1.0, -1.0,  1.0],
-      [1.0,  1.0,  1.0],  [-1.0,  1.0,  1.0],
+      [-1.0, -1.0, -1.0],
+      [1.0, -1.0, -1.0],
+      [1.0, 1.0, -1.0],
+      [-1.0, 1.0, -1.0],
+      [-1.0, -1.0, 1.0],
+      [1.0, -1.0, 1.0],
+      [1.0, 1.0, 1.0],
+      [-1.0, 1.0, 1.0],
     ];
     const edges = [
-      [0, 1], [1, 2], [2, 3], [3, 0],
-      [4, 5], [5, 6], [6, 7], [7, 4],
-      [0, 4], [1, 5], [2, 6], [3, 7],
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 0],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 4],
+      [0, 4],
+      [1, 5],
+      [2, 6],
+      [3, 7],
     ];
 
     final ax = t * 0.7;
@@ -396,10 +452,12 @@ class _AsciiGrid {
         result[row * cols + col] = chars.length - 1;
         for (final dr in [-1, 0, 1]) {
           for (final dc in [-1, 0, 1]) {
-            final nc = col + dc; final nr = row + dr;
+            final nc = col + dc;
+            final nr = row + dr;
             if (nc >= 0 && nc < cols && nr >= 0 && nr < rows) {
               if (result[nr * cols + nc] < chars.length - 2) {
-                result[nr * cols + nc] = (chars.length - 2).clamp(1, chars.length - 1);
+                result[nr * cols + nc] =
+                    (chars.length - 2).clamp(1, chars.length - 1);
               }
             }
           }
@@ -489,12 +547,12 @@ class _AsciiGrid {
       if (col >= 0 && col < cols && row >= 0 && row < rows) {
         result[row * cols + col] = chars.length - 1;
         if (col > 0) {
-          result[row * cols + col - 1] = math.max(
-              result[row * cols + col - 1], chars.length - 2);
+          result[row * cols + col - 1] =
+              math.max(result[row * cols + col - 1], chars.length - 2);
         }
         if (col < cols - 1) {
-          result[row * cols + col + 1] = math.max(
-              result[row * cols + col + 1], chars.length - 2);
+          result[row * cols + col + 1] =
+              math.max(result[row * cols + col + 1], chars.length - 2);
         }
       }
     }
@@ -765,8 +823,7 @@ class _BkAsciiShapeState extends State<BkAsciiShape>
     ).compute();
 
     final palette = widget.multicolor ? _multicolorPalette(context) : null;
-    final baseColor =
-        widget.color ?? Theme.of(context).colorScheme.primary;
+    final baseColor = widget.color ?? Theme.of(context).colorScheme.primary;
 
     const double fontSize = 7.0;
     const double lineHeight = 1.18;

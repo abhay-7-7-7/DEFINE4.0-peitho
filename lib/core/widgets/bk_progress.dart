@@ -20,7 +20,8 @@ class BkProgress extends StatefulWidget {
   State<BkProgress> createState() => _BkProgressState();
 }
 
-class _BkProgressState extends State<BkProgress> with SingleTickerProviderStateMixin {
+class _BkProgressState extends State<BkProgress>
+    with SingleTickerProviderStateMixin {
   AnimationController? _controller;
 
   @override

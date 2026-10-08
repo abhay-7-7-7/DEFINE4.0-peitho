@@ -3,8 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/bk_tokens.dart';
 
-enum BkStickerVariant { defaultVariant, primary, secondary, destructive, outline, neon }
-enum BkStickerRotation { none, slight, medium, heavy, slightRight, mediumRight, heavyRight }
+enum BkStickerVariant {
+  defaultVariant,
+  primary,
+  secondary,
+  destructive,
+  outline,
+  neon
+}
+
+enum BkStickerRotation {
+  none,
+  slight,
+  medium,
+  heavy,
+  slightRight,
+  mediumRight,
+  heavyRight
+}
 
 class BkSticker extends StatelessWidget {
   const BkSticker({
@@ -25,14 +41,14 @@ class BkSticker extends StatelessWidget {
   final VoidCallback? onTap;
 
   double get _angle => switch (rotation) {
-    BkStickerRotation.none => 0.0,
-    BkStickerRotation.slight => -2.0 * math.pi / 180,
-    BkStickerRotation.medium => -6.0 * math.pi / 180,
-    BkStickerRotation.heavy => -12.0 * math.pi / 180,
-    BkStickerRotation.slightRight => 2.0 * math.pi / 180,
-    BkStickerRotation.mediumRight => 6.0 * math.pi / 180,
-    BkStickerRotation.heavyRight => 12.0 * math.pi / 180,
-  };
+        BkStickerRotation.none => 0.0,
+        BkStickerRotation.slight => -2.0 * math.pi / 180,
+        BkStickerRotation.medium => -6.0 * math.pi / 180,
+        BkStickerRotation.heavy => -12.0 * math.pi / 180,
+        BkStickerRotation.slightRight => 2.0 * math.pi / 180,
+        BkStickerRotation.mediumRight => 6.0 * math.pi / 180,
+        BkStickerRotation.heavyRight => 12.0 * math.pi / 180,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +91,8 @@ class BkSticker extends StatelessWidget {
       stickerContent = Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          border: Border.all(color: t.border.withValues(alpha: 0.5), width: 1.5),
+          border:
+              Border.all(color: t.border.withValues(alpha: 0.5), width: 1.5),
         ),
         child: stickerContent,
       );
@@ -221,8 +238,10 @@ class BkStickyNote extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: t.destructive,
                   border: Border.all(color: t.border, width: 2),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black26, offset: Offset(2, 2)),
+                  boxShadow: [
+                    BoxShadow(
+                        color: t.shadowColor.withValues(alpha: 0.3),
+                        offset: const Offset(2, 2)),
                   ],
                 ),
               ),

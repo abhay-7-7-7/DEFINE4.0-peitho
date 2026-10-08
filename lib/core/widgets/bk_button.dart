@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/bk_motion.dart';
 import '../theme/bk_tokens.dart';
 
 // ── Enums ────────────────────────────────────────────────────────────────────
@@ -72,10 +73,12 @@ class _BkButtonState extends State<BkButton> {
   bool _pressed = false;
   bool _hovered = false;
 
-  bool get _isDisabled => !widget.enabled || widget.isLoading || widget.onPressed == null;
+  bool get _isDisabled =>
+      !widget.enabled || widget.isLoading || widget.onPressed == null;
 
   void _handleTapDown(TapDownDetails _) {
     if (_isDisabled) return;
+    BkMotion.hapticClick();
     setState(() => _pressed = true);
   }
 

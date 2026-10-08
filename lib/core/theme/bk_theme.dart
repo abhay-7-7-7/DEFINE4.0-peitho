@@ -7,8 +7,10 @@ import 'bk_tokens.dart';
 class BkTheme {
   BkTheme._();
 
-  static ThemeData light() => _build(BkTokens.light);
-  static ThemeData dark() => _build(BkTokens.dark);
+  static ThemeData light([BkTokens? custom]) =>
+      _build(custom ?? BkTokens.light);
+  static ThemeData dark([BkTokens? custom]) => _build(custom ?? BkTokens.dark);
+  static ThemeData build(BkTokens tokens) => _build(tokens);
 
   static TextStyle mono({
     double? fontSize,
@@ -82,7 +84,8 @@ class BkTheme {
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: t.destructive, width: 3),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         labelStyle: GoogleFonts.outfit(
           color: t.mutedForeground,
           fontWeight: FontWeight.w700,
@@ -142,56 +145,86 @@ class BkTheme {
   static TextTheme _buildTextTheme(BkTokens t) {
     return TextTheme(
       displayLarge: GoogleFonts.outfit(
-        fontSize: 57, fontWeight: FontWeight.w900, color: t.foreground,
+        fontSize: 57,
+        fontWeight: FontWeight.w900,
+        color: t.foreground,
         letterSpacing: -0.25,
       ),
       displayMedium: GoogleFonts.outfit(
-        fontSize: 45, fontWeight: FontWeight.w900, color: t.foreground,
+        fontSize: 45,
+        fontWeight: FontWeight.w900,
+        color: t.foreground,
       ),
       displaySmall: GoogleFonts.outfit(
-        fontSize: 36, fontWeight: FontWeight.w900, color: t.foreground,
+        fontSize: 36,
+        fontWeight: FontWeight.w900,
+        color: t.foreground,
       ),
       headlineLarge: GoogleFonts.outfit(
-        fontSize: 32, fontWeight: FontWeight.w900, color: t.foreground,
+        fontSize: 32,
+        fontWeight: FontWeight.w900,
+        color: t.foreground,
         letterSpacing: 0.5,
       ),
       headlineMedium: GoogleFonts.outfit(
-        fontSize: 28, fontWeight: FontWeight.w900, color: t.foreground,
+        fontSize: 28,
+        fontWeight: FontWeight.w900,
+        color: t.foreground,
       ),
       headlineSmall: GoogleFonts.outfit(
-        fontSize: 24, fontWeight: FontWeight.w700, color: t.foreground,
+        fontSize: 24,
+        fontWeight: FontWeight.w700,
+        color: t.foreground,
       ),
       titleLarge: GoogleFonts.outfit(
-        fontSize: 22, fontWeight: FontWeight.w700, color: t.foreground,
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        color: t.foreground,
         letterSpacing: 0.5,
       ),
       titleMedium: GoogleFonts.outfit(
-        fontSize: 16, fontWeight: FontWeight.w700, color: t.foreground,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: t.foreground,
         letterSpacing: 0.5,
       ),
       titleSmall: GoogleFonts.outfit(
-        fontSize: 14, fontWeight: FontWeight.w700, color: t.foreground,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: t.foreground,
         letterSpacing: 0.5,
       ),
       bodyLarge: GoogleFonts.outfit(
-        fontSize: 16, fontWeight: FontWeight.w400, color: t.foreground,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: t.foreground,
       ),
       bodyMedium: GoogleFonts.outfit(
-        fontSize: 14, fontWeight: FontWeight.w400, color: t.foreground,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: t.foreground,
       ),
       bodySmall: GoogleFonts.outfit(
-        fontSize: 12, fontWeight: FontWeight.w400, color: t.mutedForeground,
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: t.mutedForeground,
       ),
       labelLarge: GoogleFonts.outfit(
-        fontSize: 14, fontWeight: FontWeight.w700, color: t.foreground,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: t.foreground,
         letterSpacing: 1.0,
       ),
       labelMedium: GoogleFonts.outfit(
-        fontSize: 12, fontWeight: FontWeight.w700, color: t.foreground,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        color: t.foreground,
         letterSpacing: 1.0,
       ),
       labelSmall: GoogleFonts.outfit(
-        fontSize: 11, fontWeight: FontWeight.w700, color: t.foreground,
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        color: t.foreground,
         letterSpacing: 1.5,
       ),
     );

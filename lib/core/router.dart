@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'theme/bk_motion.dart';
 import '../features/home/home_screen.dart';
 import '../features/components/components_screen.dart';
 import '../features/components/component_detail_screen.dart';
@@ -26,6 +28,35 @@ import '../features/blocks/invoice/invoice_screen.dart';
 import '../features/settings/settings_about_screen.dart';
 import 'shell_scaffold.dart';
 
+/// Reusable brutalist page transition (slide with hard settle and fade).
+CustomTransitionPage<void> _buildBrutalistPage({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: BkMotion.pageTransition,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      if (!BkMotion.shouldAnimate(context)) return child;
+      final slide = Tween<Offset>(
+        begin: const Offset(0.04, 0.0),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: animation, curve: BkMotion.pressCurve));
+      final fade = CurvedAnimation(parent: animation, curve: Curves.easeIn);
+
+      return SlideTransition(
+        position: slide,
+        child: FadeTransition(
+          opacity: fade,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
@@ -38,18 +69,30 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/',
             name: 'home',
-            builder: (context, state) => const HomeScreen(),
+            pageBuilder: (context, state) => _buildBrutalistPage(
+              context: context,
+              state: state,
+              child: const HomeScreen(),
+            ),
           ),
           GoRoute(
             path: '/components',
             name: 'components',
-            builder: (context, state) => const ComponentsScreen(),
+            pageBuilder: (context, state) => _buildBrutalistPage(
+              context: context,
+              state: state,
+              child: const ComponentsScreen(),
+            ),
             routes: [
               GoRoute(
                 path: ':id',
                 name: 'component-detail',
-                builder: (context, state) => ComponentDetailScreen(
-                  componentId: state.pathParameters['id'] ?? '',
+                pageBuilder: (context, state) => _buildBrutalistPage(
+                  context: context,
+                  state: state,
+                  child: ComponentDetailScreen(
+                    componentId: state.pathParameters['id'] ?? '',
+                  ),
                 ),
               ),
             ],
@@ -57,34 +100,58 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/charts',
             name: 'charts',
-            builder: (context, state) => const ChartsScreen(),
+            pageBuilder: (context, state) => _buildBrutalistPage(
+              context: context,
+              state: state,
+              child: const ChartsScreen(),
+            ),
           ),
           GoRoute(
             path: '/shapes',
             name: 'shapes',
-            builder: (context, state) => const ShapesScreen(),
+            pageBuilder: (context, state) => _buildBrutalistPage(
+              context: context,
+              state: state,
+              child: const ShapesScreen(),
+            ),
             routes: [
               GoRoute(
                 path: 'builder',
                 name: 'shape-builder',
-                builder: (context, state) => const ShapeBuilderScreen(),
+                pageBuilder: (context, state) => _buildBrutalistPage(
+                  context: context,
+                  state: state,
+                  child: const ShapeBuilderScreen(),
+                ),
               ),
             ],
           ),
           GoRoute(
             path: '/ascii',
             name: 'ascii-effects',
-            builder: (context, state) => const AsciiEffectsScreen(),
+            pageBuilder: (context, state) => _buildBrutalistPage(
+              context: context,
+              state: state,
+              child: const AsciiEffectsScreen(),
+            ),
           ),
           GoRoute(
             path: '/theme-builder',
             name: 'theme-builder',
-            builder: (context, state) => const ThemeBuilderScreen(),
+            pageBuilder: (context, state) => _buildBrutalistPage(
+              context: context,
+              state: state,
+              child: const ThemeBuilderScreen(),
+            ),
           ),
           GoRoute(
             path: '/settings',
             name: 'settings',
-            builder: (context, state) => const SettingsAboutScreen(),
+            pageBuilder: (context, state) => _buildBrutalistPage(
+              context: context,
+              state: state,
+              child: const SettingsAboutScreen(),
+            ),
           ),
         ],
       ),
@@ -92,77 +159,137 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/blocks/login',
         name: 'login',
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const LoginScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/signup',
         name: 'signup',
-        builder: (context, state) => const SignUpScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const SignUpScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/forgot-password',
         name: 'forgot-password',
-        builder: (context, state) => const ForgotPasswordScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const ForgotPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/otp',
         name: 'otp',
-        builder: (context, state) => const OtpScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const OtpScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/404',
         name: 'error-404',
-        builder: (context, state) => const Error404Screen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const Error404Screen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/500',
         name: 'error-500',
-        builder: (context, state) => const Error500Screen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const Error500Screen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/maintenance',
         name: 'maintenance',
-        builder: (context, state) => const MaintenanceScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const MaintenanceScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/testimonials',
         name: 'testimonials',
-        builder: (context, state) => const TestimonialsScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const TestimonialsScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/pricing',
         name: 'pricing',
-        builder: (context, state) => const PricingScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const PricingScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/team',
         name: 'team',
-        builder: (context, state) => const TeamScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const TeamScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/faq',
         name: 'faq',
-        builder: (context, state) => const FaqScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const FaqScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/contact',
         name: 'contact',
-        builder: (context, state) => const ContactScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const ContactScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/settings',
         name: 'block-settings',
-        builder: (context, state) => const BlocksSettingsScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const BlocksSettingsScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/onboarding',
         name: 'onboarding',
-        builder: (context, state) => const OnboardingScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const OnboardingScreen(),
+        ),
       ),
       GoRoute(
         path: '/blocks/invoice',
         name: 'invoice',
-        builder: (context, state) => const InvoiceScreen(),
+        pageBuilder: (context, state) => _buildBrutalistPage(
+          context: context,
+          state: state,
+          child: const InvoiceScreen(),
+        ),
       ),
     ],
   );

@@ -6,7 +6,13 @@ import '../../../core/widgets/bk_shadow.dart';
 
 /// Brutalist login screen block.
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, this.onSignIn, this.onSignUp, this.onForgotPassword, this.onGoogle, this.onGitHub});
+  const LoginScreen(
+      {super.key,
+      this.onSignIn,
+      this.onSignUp,
+      this.onForgotPassword,
+      this.onGoogle,
+      this.onGitHub});
 
   final VoidCallback? onSignIn;
   final VoidCallback? onSignUp;
@@ -138,9 +144,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: _obscurePassword,
                         validator: _validatePassword,
                         suffixIcon: GestureDetector(
-                          onTap: () => setState(() => _obscurePassword = !_obscurePassword),
+                          onTap: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
                           child: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                             color: t.mutedForeground,
                             size: 20,
                           ),
@@ -313,7 +322,8 @@ class _BkTextFormField extends StatelessWidget {
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: t.destructive, width: 3),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         errorStyle: GoogleFonts.outfit(
           fontSize: 12,
           fontWeight: FontWeight.w600,

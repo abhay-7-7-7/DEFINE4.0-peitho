@@ -359,8 +359,10 @@ class _BkShapePainter extends CustomPainter {
         p.close();
       case BkShapeType.moon:
         p.moveTo(50, 10);
-        p.arcToPoint(const Offset(50, 90), radius: const Radius.circular(40), clockwise: false);
-        p.arcToPoint(const Offset(50, 10), radius: const Radius.circular(30), clockwise: true);
+        p.arcToPoint(const Offset(50, 90),
+            radius: const Radius.circular(40), clockwise: false);
+        p.arcToPoint(const Offset(50, 10),
+            radius: const Radius.circular(30), clockwise: true);
         p.close();
       case BkShapeType.sun:
         p.addOval(Rect.fromCircle(center: const Offset(50, 50), radius: 24));
@@ -394,7 +396,8 @@ class _BkShapePainter extends CustomPainter {
         p.close();
       case BkShapeType.planet:
         p.addOval(Rect.fromCircle(center: const Offset(50, 50), radius: 26));
-        p.addOval(Rect.fromCenter(center: const Offset(50, 50), width: 88, height: 24));
+        p.addOval(Rect.fromCenter(
+            center: const Offset(50, 50), width: 88, height: 24));
       case BkShapeType.cosmicRing:
         p.addOval(Rect.fromCircle(center: const Offset(50, 50), radius: 40));
         p.addOval(Rect.fromCircle(center: const Offset(50, 50), radius: 24));

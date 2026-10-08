@@ -49,7 +49,8 @@ class BkStepper extends StatelessWidget {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: onStepTapped != null ? () => onStepTapped!(index) : null,
+                  onTap:
+                      onStepTapped != null ? () => onStepTapped!(index) : null,
                   child: Container(
                     width: 36,
                     height: 36,
@@ -57,7 +58,11 @@ class BkStepper extends StatelessWidget {
                       color: circleBg,
                       border: Border.all(color: t.border, width: t.borderWidth),
                       boxShadow: isActive || isCompleted
-                          ? [BoxShadow(color: t.shadowColor, offset: const Offset(3, 3))]
+                          ? [
+                              BoxShadow(
+                                  color: t.shadowColor,
+                                  offset: const Offset(3, 3))
+                            ]
                           : null,
                     ),
                     child: Center(
@@ -77,7 +82,9 @@ class BkStepper extends StatelessWidget {
                   Expanded(
                     child: Container(
                       height: t.borderWidth,
-                      color: isCompleted ? t.border : t.border.withValues(alpha: 0.3),
+                      color: isCompleted
+                          ? t.border
+                          : t.border.withValues(alpha: 0.3),
                     ),
                   ),
               ],
@@ -109,15 +116,22 @@ class BkStepper extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: onStepTapped != null ? () => onStepTapped!(index) : null,
+                    onTap: onStepTapped != null
+                        ? () => onStepTapped!(index)
+                        : null,
                     child: Container(
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
                         color: circleBg,
-                        border: Border.all(color: t.border, width: t.borderWidth),
+                        border:
+                            Border.all(color: t.border, width: t.borderWidth),
                         boxShadow: isActive || isCompleted
-                            ? [BoxShadow(color: t.shadowColor, offset: const Offset(3, 3))]
+                            ? [
+                                BoxShadow(
+                                    color: t.shadowColor,
+                                    offset: const Offset(3, 3))
+                              ]
                             : null,
                       ),
                       child: Center(
@@ -137,7 +151,9 @@ class BkStepper extends StatelessWidget {
                     Expanded(
                       child: Container(
                         width: t.borderWidth,
-                        color: isCompleted ? t.border : t.border.withValues(alpha: 0.3),
+                        color: isCompleted
+                            ? t.border
+                            : t.border.withValues(alpha: 0.3),
                       ),
                     ),
                 ],

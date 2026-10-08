@@ -14,7 +14,8 @@ class Error404Screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: t.background,
       appBar: AppBar(
-        title: Text('404 NOT FOUND', style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
+        title: Text('404 NOT FOUND',
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w900)),
         backgroundColor: t.background,
         elevation: 0,
         bottom: PreferredSize(
@@ -47,7 +48,8 @@ class Error404Screen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: t.card,
                   border: Border.all(color: t.border, width: t.borderWidth),
@@ -70,7 +72,8 @@ class Error404Screen extends StatelessWidget {
                 child: Text(
                   'The page you are looking for has been destroyed, relocated, or never existed in the first place.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(fontSize: 14, color: t.mutedForeground, height: 1.5),
+                  style: GoogleFonts.outfit(
+                      fontSize: 14, color: t.mutedForeground, height: 1.5),
                 ),
               ),
               const SizedBox(height: 28),
