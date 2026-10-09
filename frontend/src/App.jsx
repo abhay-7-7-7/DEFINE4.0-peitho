@@ -18,6 +18,8 @@ import ApiAccess from './pages/ApiAccess';
 import EmailSettings from './pages/EmailSettings';
 import Chat from './test-chat/src/Chat';
 import PeithoPage from './peitho/PeithoPage';
+import BuyerChatPage from './peitho/BuyerChatPage';
+import LiveChatSeller from './peitho/LiveChatSeller';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -72,6 +74,12 @@ function App() {
             <Route path="/meet-assistant" element={<PeithoPage />} />
             <Route path="/meet-asistant" element={<PeithoPage />} />
             <Route path="/peitho" element={<Navigate to="/meet-assistant" replace />} />
+            <Route path="/live-chat" element={<PeithoPage />} />
+            <Route path="/live-chat/:sessionId" element={<LiveChatSeller standalone={true} />} />
+
+            {/* Cross-Device Buyer Chat Route (Public access for buyer on any device) */}
+            <Route path="/buyer-chat/:sessionId" element={<BuyerChatPage />} />
+            <Route path="/buyer/:sessionId" element={<BuyerChatPage />} />
 
             {/* 404 Catch-all */}
             <Route path="*" element={

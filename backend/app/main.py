@@ -30,6 +30,7 @@ from .analytics import analytics_router
 from .infrastructure.database.session import close_pool as close_mysql_pool
 from .call_feature import voice_router
 from .peitho.routes import peitho_router
+from .peitho.live_chat_routes import live_chat_router
 
 # Import competitive intelligence router from buisness anlytics module
 import sys, os
@@ -157,6 +158,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
+        allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$",
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
@@ -181,6 +183,7 @@ def create_app() -> FastAPI:
     app.include_router(market_comparison_router)
     app.include_router(voice_router)
     app.include_router(peitho_router)
+    app.include_router(live_chat_router)
     
     # Root endpoint
     @app.get("/", tags=["Root"])

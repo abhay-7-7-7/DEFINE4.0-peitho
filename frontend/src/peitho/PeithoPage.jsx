@@ -20,8 +20,18 @@ import {
   Activity,
   Send,
   Zap,
+  MessageSquare,
 } from 'lucide-react';
 import { usePeithoCall } from './usePeithoCall';
+import LiveChatSeller from './LiveChatSeller';
+
+function getBackendHttpUrl() {
+  const envApi = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
+  if (envApi) return envApi.replace(/\/+$/, '');
+  const proto = window.location.protocol;
+  const host = window.location.hostname;
+  return `${proto}//${host}:8000`;
+}
 
 const TranscriptItem = React.memo(function TranscriptItem({ t }) {
   const isSeller = t.channel === 'SELLER';
@@ -127,6 +137,43 @@ export default function PeithoPage() {
 
   const isCallActive = status === 'active';
 
+  // Live Chat Mode State
+  const [activeMode, setActiveMode] = useState('chat'); // 'chat' | 'call'
+  const [liveChatSessionId, setLiveChatSessionId] = useState(null);
+  const [liveChatLoading, setLiveChatLoading] = useState(false);
+  const [liveChatError, setLiveChatError] = useState(null);
+
+  const handleStartLiveChat = async () => {
+    setLiveChatLoading(true);
+    setLiveChatError(null);
+    try {
+      const baseUrl = getBackendHttpUrl();
+      const res = await fetch(`${baseUrl}/api/v1/peitho/live-chat/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_name: config.product_name,
+          base_price: config.base_price,
+          cost_price: config.cost_price,
+          min_floor: config.min_floor,
+          mode: config.mode,
+          max_rounds: config.max_rounds,
+          quantity: config.quantity,
+          available_inventory: config.available_inventory,
+          reference_inventory: config.reference_inventory,
+          buyer_archetype: config.buyer_archetype,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to create live chat session');
+      const data = await res.json();
+      setLiveChatSessionId(data.session_id);
+    } catch (err) {
+      setLiveChatError(err.message);
+    } finally {
+      setLiveChatLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neo-cream text-neo-navy flex flex-col font-body">
       {/* ── TOP HEADER ── */}
@@ -228,9 +275,43 @@ export default function PeithoPage() {
         </div>
       )}
 
-      {/* ── PRE-CALL SETUP / LAUNCH SCREEN ── */}
-      {!isCallActive && (
+      {/* ── ACTIVE LIVE CHAT SESSION ── */}
+      {liveChatSessionId && (
+        <LiveChatSeller
+          sessionId={liveChatSessionId}
+          onEndChat={() => setLiveChatSessionId(null)}
+        />
+      )}
+
+      {/* ── PRE-SESSION SETUP / LAUNCH SCREEN ── */}
+      {!liveChatSessionId && !isCallActive && (
         <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-8 flex flex-col justify-center">
+          {/* Mode Switcher Tabs */}
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <button
+              onClick={() => setActiveMode('chat')}
+              className={`px-5 py-2.5 font-heading font-black text-xs sm:text-sm uppercase border-[3px] border-neo-navy rounded-sm flex items-center gap-2 transition-all ${
+                activeMode === 'chat'
+                  ? 'bg-neo-orange text-neo-navy shadow-neo -translate-y-0.5'
+                  : 'bg-white text-neo-navy/70 hover:bg-neo-cream'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Live Chat Assistant
+            </button>
+            <button
+              onClick={() => setActiveMode('call')}
+              className={`px-5 py-2.5 font-heading font-black text-xs sm:text-sm uppercase border-[3px] border-neo-navy rounded-sm flex items-center gap-2 transition-all ${
+                activeMode === 'call'
+                  ? 'bg-neo-teal text-neo-cream shadow-neo -translate-y-0.5'
+                  : 'bg-white text-neo-navy/70 hover:bg-neo-cream'
+              }`}
+            >
+              <Radio className="w-4 h-4" />
+              Meet Call Assistant
+            </button>
+          </div>
+
           <div className="neo-card p-6 sm:p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-neo-teal text-neo-cream text-xs font-heading font-black px-4 py-1 border-b-2 border-l-2 border-neo-navy uppercase tracking-wider">
               PRANE-X Advisory Engine
@@ -238,12 +319,20 @@ export default function PeithoPage() {
 
             <div className="mb-6">
               <h2 className="text-2xl sm:text-3xl font-heading font-black text-neo-navy mb-2">
-                Configure Meet Assistant
+                {activeMode === 'chat' ? 'Configure Live Chat Assistant' : 'Configure Meet Assistant'}
               </h2>
               <p className="text-sm text-neo-navy/70">
-                Set your product parameters and margin targets. Peitho runs the PRANE-X negotiation engine in advisory mode to calculate counter-offers and prompt tactical responses in real time.
+                {activeMode === 'chat'
+                  ? 'Chat live with a buyer from another device or window. The AI reads the conversation in real time, computes profit/loss metrics, and gives instant strategic recommendations and replies.'
+                  : 'Set your product parameters and margin targets. Peitho runs the PRANE-X negotiation engine in advisory mode to calculate counter-offers and prompt tactical responses in real time.'}
               </p>
             </div>
+
+            {liveChatError && (
+              <div className="p-3 mb-4 bg-neo-maroon text-neo-cream text-xs font-bold rounded border-2 border-neo-navy">
+                ⚠️ {liveChatError}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div>
@@ -309,18 +398,20 @@ export default function PeithoPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-heading font-bold uppercase mb-1">STT Language & Code-Switching</label>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-neo-navy bg-white font-medium text-sm"
-                >
-                  <option value="en">English (Default)</option>
-                  <option value="hi">Hindi (हिन्दी)</option>
-                  <option value="auto">Multilingual / Auto (Code-Switching)</option>
-                </select>
-              </div>
+              {activeMode === 'call' && (
+                <div>
+                  <label className="block text-xs font-heading font-bold uppercase mb-1">STT Language & Code-Switching</label>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-neo-navy bg-white font-medium text-sm"
+                  >
+                    <option value="en">English (Default)</option>
+                    <option value="hi">Hindi (हिन्दी)</option>
+                    <option value="auto">Multilingual / Auto (Code-Switching)</option>
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Quick Info Box */}
@@ -332,26 +423,39 @@ export default function PeithoPage() {
             </div>
 
             {/* Launch Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => startCall(config, true)}
-                disabled={status === 'starting'}
-                className="flex-1 neo-btn neo-btn-orange text-base py-3.5 flex items-center justify-center gap-2"
-              >
-                <Zap className="w-5 h-5" />
-                {status === 'starting' ? 'Connecting Audio Streams...' : 'Start Meet Assistant (With Meet Audio)'}
-              </button>
+            {activeMode === 'chat' ? (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={handleStartLiveChat}
+                  disabled={liveChatLoading}
+                  className="flex-1 neo-btn neo-btn-orange text-base py-3.5 flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-5 h-5" />
+                  {liveChatLoading ? 'Creating Live Chat Room...' : 'Start Live Chat Negotiation (With AI Profit Copilot)'}
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => startCall(config, true)}
+                  disabled={status === 'starting'}
+                  className="flex-1 neo-btn neo-btn-orange text-base py-3.5 flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-5 h-5" />
+                  {status === 'starting' ? 'Connecting Audio Streams...' : 'Start Meet Assistant (With Meet Audio)'}
+                </button>
 
-              <button
-                onClick={() => startCall(config, false)}
-                disabled={status === 'starting'}
-                className="neo-btn bg-white hover:bg-neo-cream text-neo-navy text-xs py-3 px-4 flex items-center justify-center gap-1.5"
-                title="Start with mic only and type buyer utterances manually"
-              >
-                <Mic className="w-4 h-4" />
-                Mic-Only / Manual Mode
-              </button>
-            </div>
+                <button
+                  onClick={() => startCall(config, false)}
+                  disabled={status === 'starting'}
+                  className="neo-btn bg-white hover:bg-neo-cream text-neo-navy text-xs py-3 px-4 flex items-center justify-center gap-1.5"
+                  title="Start with mic only and type buyer utterances manually"
+                >
+                  <Mic className="w-4 h-4" />
+                  Mic-Only / Manual Mode
+                </button>
+              </div>
+            )}
           </div>
         </main>
       )}

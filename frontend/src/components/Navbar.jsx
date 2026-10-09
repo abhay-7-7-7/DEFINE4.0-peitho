@@ -60,7 +60,7 @@ export default function Navbar() {
   // Main nav links (removed API & Email — moved to user dropdown)
   const navLinks = [
     { path: '/', label: t('navbar.home'), icon: null },
-    { path: '/meet-assistant', label: 'Meet Assistant', icon: Radio },
+    { path: '/meet-assistant', label: 'Live Assistance', icon: Radio },
     { path: '/products', label: 'Products', icon: LayoutDashboard },
     { path: '/authority', label: t('navbar.authority'), icon: BarChart3 },
     { path: '/jury', label: 'Dashboard', icon: BarChart3 },
