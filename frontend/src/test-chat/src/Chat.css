@@ -1,0 +1,175 @@
+/* Chat specific styles */
+
+.chat-message-user {
+    background-color: #FF7D00;
+    color: #FFECD1;
+    border: 2px solid #001524;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    max-width: 80%;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.chat-message-bot {
+    background-color: #15616D;
+    color: #FFECD1;
+    border: 2px solid #001524;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    max-width: 80%;
+    animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Neo-Brutalist input styling */
+input[type="text"] {
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #FF7D00 !important;
+    box-shadow: 3px 3px 0px #001524;
+}
+
+input[type="text"]:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+/* Number input styling */
+input[type="number"].config-input {
+    font-family: 'Inter', sans-serif;
+    -moz-appearance: textfield;
+}
+
+input[type="number"].config-input::-webkit-outer-spin-button,
+input[type="number"].config-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"].config-input:focus {
+    outline: none;
+    border-color: #FF7D00 !important;
+}
+
+/* Button hover effects */
+.neo-button {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+}
+
+.neo-card {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #FFECD1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #15616D;
+    border: 2px solid #001524;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #FF7D00;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+    .neo-card {
+        box-shadow: 2px 2px 0px #001524;
+    }
+
+    .neo-button {
+        box-shadow: 2px 2px 0px #001524;
+    }
+
+    input[type="text"]:focus {
+        box-shadow: 2px 2px 0px #001524;
+    }
+}
+
+/* Phone popup animation */
+@keyframes popupSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.animate-popup {
+    animation: popupSlideIn 0.3s ease-out;
+}
+
+/* Phone input styling */
+input[type="tel"] {
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+}
+
+input[type="tel"]:focus {
+    outline: none;
+    border-color: #FF7D00 !important;
+    box-shadow: 3px 3px 0px #001524;
+}
+
+/* Product dropdown styling */
+.product-dropdown {
+    scrollbar-width: thin;
+    scrollbar-color: #15616D #FFECD1;
+}
+
+.product-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.product-dropdown::-webkit-scrollbar-track {
+    background: #FFECD1;
+}
+
+.product-dropdown::-webkit-scrollbar-thumb {
+    background: #15616D;
+    border-radius: 3px;
+}
+
+.product-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #FF7D00;
+}
