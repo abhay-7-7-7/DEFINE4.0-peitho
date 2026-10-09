@@ -461,6 +461,39 @@ const en = {
         refresh: 'Refresh',
         close: 'Close',
         cheaperThanMarket: '{count} cheaper than market',
+    },
+
+    // Peitho Live Copilot
+    peitho: {
+        dealLikelihoodEstimate: 'Deal likelihood (estimate)',
+        confidence: 'Confidence',
+        provisional: 'Provisional',
+        intents: {
+            hold: 'HOLD',
+            bridge: 'BRIDGE',
+            close: 'CLOSE',
+            probe: 'PROBE',
+        },
+        actions: {
+            copy: 'Copy',
+            copied: 'Copied!',
+            used: 'Used',
+            dismiss: 'Dismiss',
+        },
+        aiIntel: 'AI INTEL',
+        instantTemplate: 'INSTANT TEMPLATE',
+        suggestionReady: 'Suggestion ready (seller speaking...)',
+        followUp: 'Follow-up Hint:',
+        buyerState: {
+            title: 'Buyer State',
+            sentiment: 'Sentiment',
+            buyingSignal: 'Buying Signal',
+            openObjections: 'Open Objections',
+        },
+        telemetry: 'PRANE-X Engine Telemetry',
+        strategyRationale: 'Strategy Rationale',
+        targetQuote: 'Target Quote',
+        recommendation: 'ENGINE RECOMMENDATION',
     }
 };
 

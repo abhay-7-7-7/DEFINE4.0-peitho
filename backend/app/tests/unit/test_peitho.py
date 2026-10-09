@@ -210,7 +210,7 @@ def test_peitho_rest_api(mock_replies):
 
         def recv_non_state():
             m = ws.receive_json()
-            while m.get("type") in ("state", "recommendation_update"):
+            while m.get("type") in ("state", "recommendation_update", "buyer_score"):
                 m = ws.receive_json()
             return m
 
@@ -278,7 +278,7 @@ def test_mocked_provider_orchestrator_events():
     with client.websocket_connect(f"/api/v1/peitho/ws/{session_id}") as ws:
         def recv_non_state():
             m = ws.receive_json()
-            while m.get("type") == "state":
+            while m.get("type") in ("state", "recommendation_update", "buyer_score"):
                 m = ws.receive_json()
             return m
 
@@ -467,7 +467,7 @@ def test_two_stage_push_and_recommendation_update():
 
         # Receive Stage 1 advisory
         msg2 = ws.receive_json()
-        while msg2.get("type") == "state":
+        while msg2.get("type") in ("state", "buyer_score"):
             msg2 = ws.receive_json()
         assert msg2["type"] == "advisory"
         assert msg2["source"] == "template"
@@ -524,7 +524,7 @@ def test_vad_merge_guard_combines_unpunctuated_fragments():
         assert m1["type"] == "final_transcript"
 
         m2 = ws.receive_json()
-        while m2.get("type") in ("state", "recommendation_update"):
+        while m2.get("type") in ("state", "recommendation_update", "buyer_score"):
             m2 = ws.receive_json()
         assert m2["type"] == "advisory"
 
@@ -538,7 +538,7 @@ def test_vad_merge_guard_combines_unpunctuated_fragments():
 
         # Drain messages for merged turn
         merged_transcript = ws.receive_json()
-        while merged_transcript.get("type") in ("state", "recommendation_update"):
+        while merged_transcript.get("type") in ("state", "recommendation_update", "buyer_score"):
             merged_transcript = ws.receive_json()
         assert merged_transcript["type"] == "final_transcript"
         assert merged_transcript.get("is_merged") is True

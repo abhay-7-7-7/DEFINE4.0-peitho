@@ -4,7 +4,7 @@ Peitho Schemas — Pydantic models and data structures for the Peitho Live Assis
 from dataclasses import dataclass, field
 from enum import Enum
 import time
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Literal, Optional, Any
 from uuid import uuid4
 from pydantic import BaseModel, Field
 
@@ -66,6 +66,14 @@ class AdvisoryMetrics(BaseModel):
     max_rounds: int
 
 
+class SuggestedOptionSchema(BaseModel):
+    """Structured tactical suggestion option with intent categorization."""
+    text: str = Field(description="Natural spoken reply line for seller")
+    intent: str = Field(default="hold", description="Intent badge: hold | bridge | close | probe")
+    why: str = Field(default="", description="1-sentence strategic rationale")
+    followup: Optional[str] = Field(default=None, description="If buyer says X, then Y hint (top option)")
+
+
 class AdvisoryResult(BaseModel):
     """Recommendation produced for the human seller when a buyer line is processed."""
     action: str = Field(description="ACCEPT | COUNTER | REJECT | WALK_AWAY")
@@ -78,6 +86,18 @@ class AdvisoryResult(BaseModel):
     suggested_replies: List[str] = Field(
         default_factory=list,
         description="1-2 suggested natural spoken replies for the seller",
+    )
+    options: Optional[List[SuggestedOptionSchema]] = Field(
+        default=None,
+        description="Up to 3 rich tactical options categorized by intent (HOLD, BRIDGE, CLOSE, PROBE)",
+    )
+    buyer_score: Optional[int] = Field(
+        default=None,
+        description="Current Deal Likelihood score (0-100)",
+    )
+    buyer_score_band: Optional[str] = Field(
+        default=None,
+        description="Deal Likelihood band (low | medium | high)",
     )
     metrics: AdvisoryMetrics
     timestamp: float = Field(default_factory=time.time)
@@ -95,6 +115,22 @@ class AdvisoryResult(BaseModel):
     )
 
 
+class BuyerScoreMessage(BaseModel):
+    """Protocol message broadcasting real-time Deal Likelihood score updates."""
+    type: Literal["buyer_score"] = "buyer_score"
+    call_id: str
+    turn: int
+    score: int
+    band: str
+    trend: str
+    delta: int
+    confidence: str
+    provisional: bool = False
+    drivers: List[Dict[str, str]] = Field(default_factory=list)
+    history: List[Dict[str, int]] = Field(default_factory=list)
+    buyer_state: Optional[Dict[str, Any]] = None
+
+
 @dataclass
 class PeithoSession:
     """Live state container for an active Peitho call session."""
@@ -106,6 +142,12 @@ class PeithoSession:
     is_active: bool = True
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
+    scoring_engine: Any = None
+    history_tracker: Any = None
+    last_buyer_score: Optional[Dict[str, Any]] = None
+    open_objections: List[str] = field(default_factory=list)
+    resolved_objections: List[str] = field(default_factory=list)
+    seller_recent_quotes: List[str] = field(default_factory=list)
 
     def touch(self) -> None:
         self.updated_at = time.time()

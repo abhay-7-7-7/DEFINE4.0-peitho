@@ -8,6 +8,7 @@ import asyncio
 import base64
 import json
 import os
+import re
 import time
 from typing import Optional
 from uuid import uuid4
@@ -26,7 +27,14 @@ from .schemas import (
 from .session_store import peitho_store
 from .advisory import AdvisoryEngine
 from .normalizer import normalize_transcript
-from .suggestions import generate_tactical_replies, _get_template_replies, PeithoIntelClient
+from .suggestions import (
+    generate_tactical_replies,
+    _get_template_replies,
+    _get_template_options,
+    PeithoIntelClient,
+)
+from .intel import generate_tactical_options, SuggestedOption, SuggestionHistoryTracker
+from .scoring import DealLikelihoodEngine, DealLikelihoodResult
 from .stt import get_stt_adapter, TypedSTTAdapter
 
 logger = structlog.get_logger(__name__)
@@ -190,6 +198,15 @@ async def peitho_websocket(
     intel_client = PeithoIntelClient()
     last_processed_rec_id: Optional[str] = None
 
+    # Ensure in-memory scoring engine and history tracker exist for this session
+    if session.scoring_engine is None:
+        session.scoring_engine = DealLikelihoodEngine(session_id)
+    if session.history_tracker is None:
+        session.history_tracker = SuggestionHistoryTracker(window_turns=3)
+
+    seller_is_speaking = False
+    pending_advisory_payload: Optional[dict] = None
+
     # Instantiate initial STT adapters with session language preference
     stt_choice = channel_states["provider"]
     session_lang = session.config.language or settings.elevenlabs_language
@@ -231,6 +248,8 @@ async def peitho_websocket(
 
     # ── Register SELLER STT Callbacks ──
     async def on_seller_partial(text: str):
+        nonlocal seller_is_speaking
+        seller_is_speaking = True
         await safe_send({
             "type": "partial_transcript",
             "channel": ChannelType.SELLER.value,
@@ -238,6 +257,12 @@ async def peitho_websocket(
         })
 
     async def on_seller_final(text: str):
+        nonlocal seller_is_speaking, pending_advisory_payload
+        seller_is_speaking = False
+        session.seller_recent_quotes.append(text)
+        if len(session.seller_recent_quotes) > 6:
+            session.seller_recent_quotes.pop(0)
+
         line = TranscriptLine(
             channel=ChannelType.SELLER,
             text=text,
@@ -263,6 +288,13 @@ async def peitho_websocket(
                 "round": session.master_state.current_round,
             })
 
+        # Release queued suggestion once the seller pauses speaking
+        if pending_advisory_payload is not None:
+            to_flush = pending_advisory_payload
+            pending_advisory_payload = None
+            to_flush["seller_speaking"] = False
+            await safe_send(to_flush)
+
     # ── Register BUYER STT Callbacks with Speculative Pre-Compute & Two-Stage Push ──
     async def on_buyer_partial(text: str):
         await safe_send({
@@ -270,6 +302,25 @@ async def peitho_websocket(
             "channel": ChannelType.BUYER.value,
             "text": text,
         })
+
+        # Intra-turn provisional Deal Likelihood score nudge
+        if session.scoring_engine and text:
+            prov = session.scoring_engine.compute_provisional_nudge(text)
+            if prov:
+                await safe_send({
+                    "type": "buyer_score",
+                    "call_id": session_id,
+                    "turn": session.scoring_engine.turn_count,
+                    "score": prov.score,
+                    "band": prov.band,
+                    "trend": prov.trend,
+                    "delta": prov.delta,
+                    "confidence": prov.confidence,
+                    "provisional": True,
+                    "drivers": prov.drivers,
+                    "history": prov.history,
+                })
+
         # Speculative pre-compute: if partial utterance has numbers/price clues, evaluate in background
         if text and any(char.isdigit() for char in text):
             try:
@@ -293,10 +344,13 @@ async def peitho_websocket(
                 pass
 
     async def on_buyer_final(text: str):
-        nonlocal active_llm_task, last_processed_rec_id
+        nonlocal active_llm_task, last_processed_rec_id, pending_advisory_payload
         t2 = time.time()
         # Retrieve t0 from buyer_stt if available
         t0 = getattr(buyer_stt, "_last_audio_send_time", t2)
+
+        # Buyer interrupted or spoke again: clear any pending stale queued suggestion
+        pending_advisory_payload = None
 
         # ── VAD Merge Guard ──
         # If previous line was BUYER within 1.0s and lacked terminal punctuation (. ! ?),
@@ -339,7 +393,19 @@ async def peitho_websocket(
             "is_merged": is_merge,
         })
 
-        # ── STAGE 1: IMMEDIATE TEMPLATE RECOMMENDATION (< 10 ms) ──
+        # ── Update Objections State ──
+        lower_eff = effective_text.lower()
+        if any(w in lower_eff for w in ("expensive", "too high", "over budget", "cheaper", "discount", "can't afford")):
+            if "price" not in session.open_objections:
+                session.open_objections.append("price")
+        if any(w in lower_eff for w in ("shipping", "delivery", "timeline", "lead time", "slow")):
+            if "delivery" not in session.open_objections:
+                session.open_objections.append("delivery")
+        if any(w in lower_eff for w in ("deal", "agreed", "done", "sounds good", "take it", "accept")):
+            session.resolved_objections.extend(session.open_objections)
+            session.open_objections.clear()
+
+        # ── STAGE 1: IMMEDIATE TEMPLATE RECOMMENDATION & SCORE (< 10 ms) ──
         try:
             norm_text = normalize_transcript(effective_text)
             cur_counter = (
@@ -410,12 +476,71 @@ async def peitho_websocket(
                 max_rounds=session.config.max_rounds,
             )
 
-            template_replies = _get_template_replies(
+            # ── Calculate Deal Likelihood Score ──
+            intel_signals = {
+                "sentiment": (
+                    "positive" if any(w in lower_eff for w in ("great", "good", "agree", "fair", "works", "deal", "perfect"))
+                    else ("negative" if any(w in lower_eff for w in ("too much", "high", "expensive", "cannot", "no way", "terrible"))
+                    else "neutral")
+                ),
+                "buying_signal": (
+                    "high" if any(w in lower_eff for w in ("ready", "buy", "order", "invoice", "deal", "send", "take it"))
+                    else ("low" if any(w in lower_eff for w in ("walk", "leave", "forget it", "pass", "no thanks"))
+                    else "medium")
+                ),
+                "open_objections_count": len(session.open_objections),
+                "resolved_objections_count": len(session.resolved_objections),
+                "urgency_signal": bool(re.search(r"\b(?:urgent|today|asap|this week|immediately|need it fast)\b", lower_eff)),
+                "commitment_made": bool(re.search(r"\b(?:will buy|ready to purchase|commit|signing|take \d+)\b", lower_eff)),
+                "competitor_mention": bool(re.search(r"\b(?:competitor|other vendor|alternate|cheaper elsewhere|another quote)\b", lower_eff)),
+            }
+
+            dl_result = session.scoring_engine.evaluate(
+                state=session.master_state,
+                engine_result=engine_result,
+                intel_data=intel_signals,
+                extraction=extraction,
+            )
+            session.last_buyer_score = {
+                "score": dl_result.score,
+                "band": dl_result.band,
+                "trend": dl_result.trend,
+                "delta": dl_result.delta,
+                "confidence": dl_result.confidence,
+                "drivers": dl_result.drivers,
+                "history": dl_result.history,
+            }
+
+            # Emit buyer_score message immediately
+            await safe_send({
+                "type": "buyer_score",
+                "call_id": session_id,
+                "turn": session.scoring_engine.turn_count,
+                "score": dl_result.score,
+                "band": dl_result.band,
+                "trend": dl_result.trend,
+                "delta": dl_result.delta,
+                "confidence": dl_result.confidence,
+                "provisional": False,
+                "drivers": dl_result.drivers,
+                "history": dl_result.history,
+                "buyer_state": {
+                    "sentiment": intel_signals["sentiment"],
+                    "buying_signal": intel_signals["buying_signal"],
+                    "open_objections": intel_signals["open_objections_count"],
+                },
+            })
+
+            # ── Template Options (Stage 1) ──
+            template_options_objs = _get_template_options(
                 action=action_str,
                 counter_price=counter_val,
                 quantity=session.config.quantity,
                 firmness=session.master_state.firmness_level,
+                buyer_offer=extraction.get("unit_price_offered"),
             )
+            template_replies = [opt.text for opt in template_options_objs]
+            template_options_dicts = [opt.to_dict() for opt in template_options_objs]
 
             t5 = time.time()
             rec_id = str(uuid4())
@@ -438,6 +563,9 @@ async def peitho_websocket(
                 extracted_buyer_intent=extraction.get("intent"),
                 extracted_quantity=extraction.get("quantity"),
                 suggested_replies=template_replies,
+                options=template_options_dicts,
+                buyer_score=dl_result.score,
+                buyer_score_band=dl_result.band,
                 metrics=metrics,
                 timestamp=t5,
                 recommendation_id=rec_id,
@@ -446,13 +574,21 @@ async def peitho_websocket(
             )
             session.last_advisory = advisory
 
-            await safe_send({
+            advisory_payload = {
                 "type": "advisory",
                 "data": advisory.model_dump(),
                 "recommendation_id": rec_id,
                 "source": "template",
                 "timing": timing_stage1,
-            })
+                "options": template_options_dicts,
+                "seller_speaking": seller_is_speaking,
+            }
+
+            # If seller is actively speaking, queue the suggestion card until they pause
+            if seller_is_speaking:
+                pending_advisory_payload = advisory_payload
+            else:
+                await safe_send(advisory_payload)
 
             if is_peitho_debug():
                 logger.info(
@@ -478,14 +614,26 @@ async def peitho_websocket(
             start_t0: float,
             start_t2: float,
             start_t5: float,
+            current_score: int,
+            current_band: str,
+            current_drivers: list,
         ):
             try:
-                ai_replies = await generate_tactical_replies(
+                ai_options_objs = await generate_tactical_options(
                     engine_result=eng_res,
                     buyer_text=buyer_msg,
                     state=st,
+                    history_tracker=session.history_tracker,
+                    deal_score=current_score,
+                    score_band=current_band,
+                    score_drivers=current_drivers,
+                    recent_seller_lines=session.seller_recent_quotes,
+                    open_objections=session.open_objections,
                     llm_client=intel_client,
                 )
+                ai_replies = [opt.text for opt in ai_options_objs]
+                ai_options_dicts = [opt.to_dict() for opt in ai_options_objs]
+
                 t7 = time.time()
                 timing_stage2 = {
                     "t0": round(start_t0 * 1000, 2),
@@ -499,16 +647,28 @@ async def peitho_websocket(
                 if target_rec_id == last_processed_rec_id:
                     if session.last_advisory and session.last_advisory.recommendation_id == target_rec_id:
                         session.last_advisory.suggested_replies = ai_replies
+                        session.last_advisory.options = ai_options_dicts
                         session.last_advisory.source = "ai"
                         session.last_advisory.timing = timing_stage2
 
-                    await safe_send({
+                    rec_update_msg = {
                         "type": "recommendation_update",
                         "recommendation_id": target_rec_id,
                         "source": "ai",
                         "suggested_replies": ai_replies,
+                        "options": ai_options_dicts,
                         "timing": timing_stage2,
-                    })
+                    }
+
+                    if seller_is_speaking and pending_advisory_payload is not None:
+                        # If seller is still speaking, upgrade the queued payload with AI options
+                        if pending_advisory_payload.get("recommendation_id") == target_rec_id:
+                            pending_advisory_payload["data"]["suggested_replies"] = ai_replies
+                            pending_advisory_payload["data"]["options"] = ai_options_dicts
+                            pending_advisory_payload["data"]["source"] = "ai"
+                            pending_advisory_payload["options"] = ai_options_dicts
+                    else:
+                        await safe_send(rec_update_msg)
 
                     if is_peitho_debug():
                         logger.info(
@@ -530,6 +690,9 @@ async def peitho_websocket(
                 start_t0=t0,
                 start_t2=t2,
                 start_t5=t5,
+                current_score=dl_result.score,
+                current_band=dl_result.band,
+                current_drivers=dl_result.drivers,
             )
         )
         active_llm_task.add_done_callback(task_done_logger)
@@ -596,7 +759,7 @@ async def peitho_websocket(
                     except Exception as e:
                         logger.error("audio_decode_error", error_type=type(e).__name__)
 
-            elif msg_type == "transcript_line":
+            elif msg_type in ("transcript_line", "typed_line"):
                 # Direct typed text injection (fallback or testing mode)
                 ch = str(msg.get("channel", "BUYER")).strip().upper()
                 is_seller = ch in ("SELLER", "MIC")

@@ -69,6 +69,29 @@ export function usePeithoCall() {
   const [currentCounter, setCurrentCounter] = useState(null);
   const [currentRound, setCurrentRound] = useState(0);
 
+  // Live Deal Likelihood state (0-100)
+  const [buyerScore, setBuyerScore] = useState({
+    score: 50,
+    band: 'medium',
+    trend: 'flat',
+    delta: 0,
+    confidence: 'low',
+    provisional: false,
+    drivers: [],
+    history: [],
+    buyerState: {
+      sentiment: 'neutral',
+      buying_signal: 'medium',
+      open_objections: 0,
+    },
+  });
+
+  // Seller speaking awareness & suggestion queueing
+  const [sellerIsSpeaking, setSellerIsSpeaking] = useState(false);
+  const sellerIsSpeakingRef = useRef(false);
+  const [hasQueuedSuggestion, setHasQueuedSuggestion] = useState(false);
+  const pendingAdvisoryRef = useRef(null);
+
   // Refs
   const wsRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -188,8 +211,28 @@ export function usePeithoCall() {
         if (msg.buyer_reason) setBuyerReason(msg.buyer_reason);
         break;
 
+      case 'buyer_score':
+        setBuyerScore((prev) => ({
+          score: typeof msg.score === 'number' ? msg.score : 50,
+          band: msg.band || 'medium',
+          trend: msg.trend || 'flat',
+          delta: typeof msg.delta === 'number' ? msg.delta : 0,
+          confidence: msg.confidence || 'medium',
+          provisional: Boolean(msg.provisional),
+          drivers: Array.isArray(msg.drivers) ? msg.drivers : [],
+          history: Array.isArray(msg.history) ? msg.history : [],
+          buyerState: msg.buyer_state || prev.buyerState || {
+            sentiment: 'neutral',
+            buying_signal: 'medium',
+            open_objections: 0,
+          },
+        }));
+        break;
+
       case 'partial_transcript':
         if (msg.channel === 'SELLER') {
+          sellerIsSpeakingRef.current = true;
+          setSellerIsSpeaking(true);
           setPartialSellerText(msg.text);
         } else {
           setPartialBuyerText(msg.text);
@@ -198,7 +241,15 @@ export function usePeithoCall() {
 
       case 'final_transcript':
         if (msg.channel === 'SELLER') {
+          sellerIsSpeakingRef.current = false;
+          setSellerIsSpeaking(false);
           setPartialSellerText('');
+          // If a suggestion was queued while seller was speaking, flush it now
+          if (pendingAdvisoryRef.current) {
+            setAdvisory(pendingAdvisoryRef.current);
+            pendingAdvisoryRef.current = null;
+            setHasQueuedSuggestion(false);
+          }
         } else {
           setPartialBuyerText('');
         }
@@ -226,24 +277,55 @@ export function usePeithoCall() {
         break;
 
       case 'advisory':
-        if (msg.data) {
+        const advRaw = msg.data || msg;
+        if (advRaw && (advRaw.action || advRaw.counter_price !== undefined || msg.data)) {
           const advData = {
-            ...msg.data,
-            recommendation_id: msg.recommendation_id || msg.data.recommendation_id,
-            source: msg.source || msg.data.source || 'template',
-            timing: msg.timing || msg.data.timing,
+            ...(msg.data || {}),
+            ...(typeof advRaw === 'object' ? advRaw : {}),
+            options: msg.options || (msg.data && msg.data.options) || advRaw.options || [],
+            recommendation_id: msg.recommendation_id || (msg.data && msg.data.recommendation_id) || advRaw.recommendation_id,
+            source: msg.source || (msg.data && msg.data.source) || advRaw.source || 'template',
+            timing: msg.timing || (msg.data && msg.data.timing) || advRaw.timing,
           };
-          setAdvisory(advData);
+          // If seller is actively speaking, queue the card so it doesn't flicker mid-sentence
+          if (sellerIsSpeakingRef.current || msg.seller_speaking) {
+            pendingAdvisoryRef.current = advData;
+            setHasQueuedSuggestion(true);
+          } else {
+            setAdvisory(advData);
+            pendingAdvisoryRef.current = null;
+            setHasQueuedSuggestion(false);
+          }
+
           if (advData.counter_price) {
             setCurrentCounter(advData.counter_price);
           }
           if (advData.metrics && advData.metrics.current_round !== undefined) {
             setCurrentRound(advData.metrics.current_round);
           }
+          if (advData.buyer_score !== undefined) {
+            setBuyerScore((prev) => ({
+              ...prev,
+              score: advData.buyer_score,
+              band: advData.buyer_score_band || prev.band,
+            }));
+          }
         }
         break;
 
       case 'recommendation_update':
+        if (
+          pendingAdvisoryRef.current &&
+          pendingAdvisoryRef.current.recommendation_id === msg.recommendation_id
+        ) {
+          pendingAdvisoryRef.current = {
+            ...pendingAdvisoryRef.current,
+            suggested_replies: msg.suggested_replies || pendingAdvisoryRef.current.suggested_replies,
+            options: msg.options || pendingAdvisoryRef.current.options,
+            source: msg.source || 'ai',
+            timing: msg.timing || pendingAdvisoryRef.current.timing,
+          };
+        }
         setAdvisory((prev) => {
           if (!prev) return prev;
           // Order safety: discard update if recommendation_id doesn't match active card
@@ -253,6 +335,7 @@ export function usePeithoCall() {
           return {
             ...prev,
             suggested_replies: msg.suggested_replies || prev.suggested_replies,
+            options: msg.options || prev.options,
             source: msg.source || 'ai',
             timing: msg.timing || prev.timing,
           };
@@ -486,5 +569,8 @@ export function usePeithoCall() {
     startCall,
     endCall,
     sendTypedLine,
+    buyerScore,
+    sellerIsSpeaking,
+    hasQueuedSuggestion,
   };
 }

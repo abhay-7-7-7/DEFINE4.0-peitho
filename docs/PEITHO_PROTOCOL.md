@@ -106,13 +106,54 @@ VAD-committed speech segment. Subject to VAD merge guard (unpunctuated rapid fra
 }
 ```
 
-### 3.5 Stage 1 Immediate Advisory (`advisory`)
-**Ultra-low-latency strategic recommendation (< 10ms from commit)**. Evaluates PRANE-X engine rules and produces instant deterministic template replies so the rep is never left waiting for an LLM.
+### 3.5 Live Deal Likelihood Score (`buyer_score`)
+**Additive Event**. Emitted for every committed buyer final utterance, as well as provisional nudges during partial hypothesis recognition. Computes a deterministic, explainable probability of deal closure (0–100) combining price gap, concession velocity, engine telemetry, and conversational sentiment.
+```json
+{
+  "type": "buyer_score",
+  "call_id": "36c3cb37-8081-40be-8976-7ee7cba3d438",
+  "turn": 1,
+  "score": 68,
+  "band": "medium",
+  "trend": "up",
+  "delta": 6,
+  "confidence": "high",
+  "provisional": false,
+  "drivers": [
+    {
+      "text": "Offer rose twice in a row",
+      "effect": "positive"
+    },
+    {
+      "text": "Offer within 8% of asking quote",
+      "effect": "positive"
+    },
+    {
+      "text": "1 price objection unresolved",
+      "effect": "negative"
+    }
+  ],
+  "history": [
+    {
+      "round": 1,
+      "score": 62
+    },
+    {
+      "round": 2,
+      "score": 68
+    }
+  ]
+}
+```
+
+### 3.6 Stage 1 Immediate Advisory (`advisory`)
+**Ultra-low-latency strategic recommendation (< 10ms from commit)**. Evaluates PRANE-X engine rules and produces instant deterministic template replies and structured options (`HOLD`, `BRIDGE`, `CLOSE`, `PROBE`) so the rep is never left waiting for an LLM.
 ```json
 {
   "type": "advisory",
   "recommendation_id": "d981240a-5b12-4f81-9b7e-908b1a37c891",
   "source": "template",
+  "seller_speaking": false,
   "timing": {
     "t0": 1728475199423.0,
     "t2": 1728475200123.0,
@@ -132,6 +173,28 @@ VAD-committed speech segment. Subject to VAD merge guard (unpunctuated rapid fra
       "I can meet you partway at $475.00 per unit if we can confirm the order today.",
       "How about we split the difference at $475.00? That keeps it workable on our end."
     ],
+    "options": [
+      {
+        "text": "I can meet you partway at $475.00 per unit if we can confirm the order today.",
+        "intent": "bridge",
+        "why": "Offers reciprocal concession tied to rapid commitment.",
+        "followup": "If buyer accepts, transition immediately to contract sign-off."
+      },
+      {
+        "text": "At $475.00, you get our complete support package and guaranteed stock allocation.",
+        "intent": "hold",
+        "why": "Reinforces tangible product value to justify current position.",
+        "followup": null
+      },
+      {
+        "text": "What overall budget ceiling are you working with for this purchase?",
+        "intent": "probe",
+        "why": "Uncovers true financial parameters to guide subsequent rounds.",
+        "followup": "If buyer specifies a realistic range, bridge with value-add options."
+      }
+    ],
+    "buyer_score": 68,
+    "buyer_score_band": "medium",
     "metrics": {
       "bbi": 42.5,
       "p_high_wtp": 0.65,
@@ -147,16 +210,36 @@ VAD-committed speech segment. Subject to VAD merge guard (unpunctuated rapid fra
 }
 ```
 
-### 3.6 Stage 2 Asynchronous AI Upgrade (`recommendation_update`)
-**Additive Event**. Pushed concurrently when OpenRouter / Gemini tactical generation completes. Upgrades spoken replies seamlessly without causing price card flicker.
+### 3.7 Stage 2 Asynchronous AI Upgrade (`recommendation_update`)
+**Additive Event**. Pushed concurrently when OpenRouter / Gemini tactical generation completes. Upgrades spoken replies seamlessly without causing price card flicker. Features tactical intent classification and follow-up guidance.
 ```json
 {
   "type": "recommendation_update",
   "recommendation_id": "d981240a-5b12-4f81-9b7e-908b1a37c891",
   "source": "ai",
   "suggested_replies": [
-    "I appreciate that number, but for this tier the best I can do is $475 today.",
-    "If we lock in the shipment this afternoon, I can meet you at $475 per cluster."
+    "I can meet you at $475 if we can lock in shipment this afternoon.",
+    "At $475 per cluster, our full enterprise support package is included."
+  ],
+  "options": [
+    {
+      "text": "I can meet you at $475 if we can lock in shipment this afternoon.",
+      "intent": "bridge",
+      "why": "Pairs price concession with same-day order commitment.",
+      "followup": "If buyer requests net-60 payment terms, counter with net-30."
+    },
+    {
+      "text": "At $475 per cluster, our full enterprise support package is included.",
+      "intent": "hold",
+      "why": "Defends quote by highlighting bundled services.",
+      "followup": null
+    },
+    {
+      "text": "What specific deployment timeline are you aiming for on your side?",
+      "intent": "probe",
+      "why": "Shifts conversation to delivery urgency.",
+      "followup": null
+    }
   ],
   "timing": {
     "t0": 1728475199423.0,
@@ -169,7 +252,7 @@ VAD-committed speech segment. Subject to VAD merge guard (unpunctuated rapid fra
 }
 ```
 
-### 3.7 Seller Quote Synchronized (`seller_update`)
+### 3.8 Seller Quote Synchronized (`seller_update`)
 Emitted when the human rep verbalizes an explicit counter-offer, keeping PRANE-X master state in exact lockstep.
 ```json
 {
