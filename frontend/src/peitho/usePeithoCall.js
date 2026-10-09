@@ -18,11 +18,17 @@ function getBackendUrls() {
     const ws = http.replace(/^http/, 'ws');
     return { http, ws };
   }
-  const proto = window.location.protocol;
-  const host = window.location.hostname;
+  if (typeof window !== 'undefined' && window.location) {
+    const proto = window.location.protocol;
+    const host = window.location.hostname;
+    return {
+      http: `${proto}//${host}:8000`,
+      ws: `${proto === 'https:' ? 'wss' : 'ws'}://${host}:8000`,
+    };
+  }
   return {
-    http: `${proto}//${host}:8000`,
-    ws: `${proto === 'https:' ? 'wss' : 'ws'}://${host}:8000`,
+    http: 'http://localhost:8000',
+    ws: 'ws://localhost:8000',
   };
 }
 
@@ -91,6 +97,10 @@ export function usePeithoCall() {
   const sellerIsSpeakingRef = useRef(false);
   const [hasQueuedSuggestion, setHasQueuedSuggestion] = useState(false);
   const pendingAdvisoryRef = useRef(null);
+
+  // Deal Locking state
+  const [isDealLocked, setIsDealLocked] = useState(false);
+  const [lockedDealData, setLockedDealData] = useState(null);
 
   // Refs
   const wsRef = useRef(null);
@@ -347,6 +357,11 @@ export function usePeithoCall() {
         if (msg.round !== undefined) setCurrentRound(msg.round);
         break;
 
+      case 'deal_locked':
+        setIsDealLocked(true);
+        setLockedDealData(msg);
+        break;
+
       case 'call_ended':
         setStatus('ended');
         cleanupAudio();
@@ -368,6 +383,8 @@ export function usePeithoCall() {
       setError(null);
       setTranscripts([]);
       setAdvisory(null);
+      setIsDealLocked(false);
+      setLockedDealData(null);
 
       // 1. Initialize Peitho session via REST API
       const payload = { ...sessionConfig, language: sessionConfig.language || language };
@@ -524,6 +541,23 @@ export function usePeithoCall() {
     }));
   }, []);
 
+  // Lock Deal (Commit to accepted agreement)
+  const lockDeal = useCallback((agreedPrice) => {
+    const ws = wsRef.current;
+    const finalPrice = agreedPrice !== undefined ? agreedPrice : currentCounter;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'lock_deal',
+        agreed_price: finalPrice,
+      }));
+    }
+    setIsDealLocked(true);
+    setLockedDealData({
+      agreed_price: finalPrice,
+      timestamp: Date.now() / 1000,
+    });
+  }, [currentCounter]);
+
   // End Call
   const endCall = useCallback(() => {
     setStatus('ending');
@@ -572,5 +606,8 @@ export function usePeithoCall() {
     buyerScore,
     sellerIsSpeaking,
     hasQueuedSuggestion,
+    isDealLocked,
+    lockedDealData,
+    lockDeal,
   };
 }

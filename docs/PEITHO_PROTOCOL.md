@@ -43,7 +43,16 @@ Synchronizes connection state and prevents reverse-proxy idle disconnects.
 }
 ```
 
-### 2.4 End Call (`end_call`)
+### 2.4 Lock Deal (`lock_deal`)
+**Additive Event**. Sent by the seller to commit and finalize an agreed transaction when buyer terms are acceptable.
+```json
+{
+  "type": "lock_deal",
+  "agreed_price": 475.0
+}
+```
+
+### 2.5 End Call (`end_call`)
 Signals clean session termination by the human sales representative.
 ```json
 {
@@ -195,6 +204,9 @@ VAD-committed speech segment. Subject to VAD merge guard (unpunctuated rapid fra
     ],
     "buyer_score": 68,
     "buyer_score_band": "medium",
+    "deal_lockable": true,
+    "lockable_price": 475.0,
+    "lock_reason": "Buyer offer meets or exceeds target quote",
     "metrics": {
       "bbi": 42.5,
       "p_high_wtp": 0.65,
@@ -284,5 +296,18 @@ Emitted when the human rep verbalizes an explicit counter-offer, keeping PRANE-X
 {
   "type": "error",
   "message": "Session not found or expired"
+}
+```
+
+### 3.11 Deal Locked Confirmation (`deal_locked`)
+**Additive Event**. Broadcast when the seller locks the deal, terminating the session with committed transaction terms.
+```json
+{
+  "type": "deal_locked",
+  "call_id": "36c3cb37-8081-40be-8976-7ee7cba3d438",
+  "agreed_price": 475.0,
+  "quantity": 1,
+  "total_value": 475.0,
+  "timestamp": 1728475205.891
 }
 ```

@@ -554,6 +554,31 @@ async def peitho_websocket(
                 "t2_to_t5_ms": round((t5 - t2) * 1000, 2),
             }
 
+            # Check if deal is lockable (buyer agreed / near target and >= min_floor)
+            buyer_price = extraction.get("unit_price_offered")
+            has_agreement_cue = any(
+                w in lower_eff for w in ("deal", "agree", "done", "take it", "sounds good", "accept", "lock", "fair", "fine", "ok", "okay", "let's do it", "we have a deal")
+            )
+            min_floor_val = float(session.config.min_floor)
+            is_deal_lockable = False
+            lockable_price = counter_val
+            lock_reason = ""
+
+            if action_str == "ACCEPT":
+                is_deal_lockable = True
+                lockable_price = buyer_price if (buyer_price and buyer_price >= min_floor_val) else counter_val
+                lock_reason = "Engine recommended ACCEPT: Favorable terms reached"
+            elif buyer_price is not None and buyer_price >= min_floor_val:
+                gap_ratio = (counter_val - buyer_price) / max(counter_val, 1.0)
+                if buyer_price >= counter_val:
+                    is_deal_lockable = True
+                    lockable_price = buyer_price
+                    lock_reason = "Buyer offer meets or exceeds target quote"
+                elif gap_ratio <= 0.10 and (has_agreement_cue or dl_result.score >= 70):
+                    is_deal_lockable = True
+                    lockable_price = buyer_price
+                    lock_reason = "Buyer agreed near target counter"
+
             advisory = AdvisoryResult(
                 action=action_str,
                 counter_price=counter_val,
@@ -566,6 +591,9 @@ async def peitho_websocket(
                 options=template_options_dicts,
                 buyer_score=dl_result.score,
                 buyer_score_band=dl_result.band,
+                deal_lockable=is_deal_lockable,
+                lockable_price=round(lockable_price, 2) if is_deal_lockable else None,
+                lock_reason=lock_reason or None,
                 metrics=metrics,
                 timestamp=t5,
                 recommendation_id=rec_id,
@@ -581,6 +609,9 @@ async def peitho_websocket(
                 "source": "template",
                 "timing": timing_stage1,
                 "options": template_options_dicts,
+                "deal_lockable": is_deal_lockable,
+                "lockable_price": round(lockable_price, 2) if is_deal_lockable else None,
+                "lock_reason": lock_reason or None,
                 "seller_speaking": seller_is_speaking,
             }
 
@@ -785,6 +816,19 @@ async def peitho_websocket(
                 await safe_send({
                     "type": "pong",
                     "ts": time.time(),
+                })
+
+            elif msg_type == "lock_deal":
+                agreed_p = float(msg.get("agreed_price") or (session.master_state.counter_history[-1] if session.master_state.counter_history else session.config.base_price))
+                logger.info("peitho_deal_locked", session_id=session_id)
+                session.master_state.session_terminated = True
+                await safe_send({
+                    "type": "deal_locked",
+                    "call_id": session_id,
+                    "agreed_price": round(agreed_p, 2),
+                    "quantity": session.config.quantity,
+                    "total_value": round(agreed_p * session.config.quantity, 2),
+                    "timestamp": time.time(),
                 })
 
             elif msg_type == "end_call":

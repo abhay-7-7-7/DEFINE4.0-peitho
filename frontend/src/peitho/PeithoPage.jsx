@@ -23,6 +23,7 @@ import {
   Send,
   Zap,
   CheckCircle2,
+  Lock,
 } from 'lucide-react';
 import { usePeithoCall } from './usePeithoCall';
 import { useI18n } from '../context/I18nContext';
@@ -338,12 +339,165 @@ const BuyerStateStrip = React.memo(function BuyerStateStrip({ buyerState, t }) {
   );
 });
 
+function LockDealModal({
+  isOpen,
+  onClose,
+  deal,
+  config,
+  onLock,
+  t,
+}) {
+  const [copied, setCopied] = useState(false);
+  if (!isOpen || !deal) return null;
+
+  const price = Number(deal.price) || 0;
+  const qty = Number(config?.quantity) || 1;
+  const cost = Number(config?.cost_price) || 0;
+  const minFloor = Number(config?.min_floor) || 0;
+  const totalValue = price * qty;
+  const unitProfit = price - cost;
+  const totalProfit = unitProfit * qty;
+  const marginPercent = price > 0 ? ((unitProfit / price) * 100).toFixed(1) : '0.0';
+  const floorBuffer = price - minFloor;
+
+  const scriptText = `Excellent, we have an agreement at $${price.toFixed(2)}. I am locking in our terms right now and will prepare the confirmation.`;
+
+  const handleCopyScript = () => {
+    navigator.clipboard.writeText(scriptText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-neo-navy/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
+      <div className="bg-neo-cream border-[3.5px] border-neo-navy max-w-lg w-full p-6 shadow-neo-lg relative rounded-none animate-in zoom-in-95">
+        {/* Top Header */}
+        <div className="flex items-start justify-between pb-3 border-b-2 border-neo-navy mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-400 border-2 border-neo-navy flex items-center justify-center shadow-[2px_2px_0px_#001524]">
+              <Lock className="w-5 h-5 text-neo-navy" />
+            </div>
+            <div>
+              <span className="text-[10px] font-heading font-black tracking-widest text-emerald-800 uppercase bg-emerald-100 px-2 py-0.5 border border-emerald-400 rounded">
+                Agreement Reached
+              </span>
+              <h2 className="text-xl sm:text-2xl font-heading font-black text-neo-navy uppercase tracking-tight mt-0.5">
+                Lock the Deal
+              </h2>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 border-2 border-neo-navy font-bold flex items-center justify-center hover:bg-rose-100 transition-colors cursor-pointer"
+            title="Dismiss / Keep Haggling"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Reason pill */}
+        {deal.reason && (
+          <div className="mb-4 px-3 py-1.5 bg-emerald-50 border-2 border-emerald-600/40 rounded text-xs font-semibold text-emerald-950 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{deal.reason}</span>
+          </div>
+        )}
+
+        {/* Main Price Highlight */}
+        <div className="bg-white border-2 border-neo-navy p-4 mb-4 rounded shadow-[2px_2px_0px_#001524] text-center">
+          <div className="text-[11px] font-heading font-black uppercase text-neo-navy/60">
+            Agreed Unit Price
+          </div>
+          <div className="text-3xl sm:text-4xl font-heading font-black text-neo-navy my-1">
+            ${price.toFixed(2)}
+            <span className="text-sm font-normal text-neo-navy/60 font-body ml-1">/ unit</span>
+          </div>
+          <div className="text-xs font-mono font-bold text-neo-teal">
+            Total Contract Value: <span className="text-sm text-neo-navy">${totalValue.toFixed(2)}</span> ({qty} {qty === 1 ? 'unit' : 'units'})
+          </div>
+        </div>
+
+        {/* Confidential Profitability Breakdown (Seller Eyes Only) */}
+        <div className="bg-neo-teal/10 border-2 border-neo-teal p-3.5 mb-4 rounded text-xs">
+          <div className="text-[10px] font-heading font-black uppercase tracking-wider text-neo-teal flex items-center gap-1 mb-2">
+            <Shield className="w-3.5 h-3.5" />
+            <span>Confidential Seller Margin Breakdown</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="bg-white p-2 border border-neo-navy/20 rounded">
+              <span className="text-[10px] text-neo-navy/60 block font-heading font-bold uppercase">Margin %</span>
+              <span className="font-heading font-black text-sm text-emerald-700">{marginPercent}%</span>
+            </div>
+            <div className="bg-white p-2 border border-neo-navy/20 rounded">
+              <span className="text-[10px] text-neo-navy/60 block font-heading font-bold uppercase">Total Profit</span>
+              <span className="font-heading font-black text-sm text-neo-navy">${totalProfit.toFixed(2)}</span>
+            </div>
+            <div className="bg-white p-2 border border-neo-navy/20 rounded">
+              <span className="text-[10px] text-neo-navy/60 block font-heading font-bold uppercase">Above Floor</span>
+              <span className="font-heading font-black text-sm text-neo-teal">+${floorBuffer.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Spoken Closing Script */}
+        <div className="bg-white border-2 border-neo-navy p-3 mb-5 rounded">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-heading font-black uppercase text-neo-navy/70 flex items-center gap-1">
+              <span>🗣️ Recommended Spoken Confirmation</span>
+            </span>
+            <button
+              onClick={handleCopyScript}
+              className="px-2 py-0.5 bg-neo-cream hover:bg-neo-orange/20 border border-neo-navy rounded text-[10px] font-heading font-bold flex items-center gap-1 transition-all cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-600" />
+                  <span className="text-emerald-700">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3 text-neo-navy" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
+          <p className="text-xs sm:text-sm font-semibold text-neo-navy italic">
+            "{scriptText}"
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => onLock(price)}
+            className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-neo-navy border-[2.5px] border-neo-navy font-heading font-black text-sm uppercase shadow-[3px_3px_0px_#001524] hover:translate-x-[1px] hover:translate-y-[1px] flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <Lock className="w-4 h-4" />
+            <span>Lock Deal Now (${totalValue.toFixed(2)})</span>
+          </button>
+          <button
+            onClick={onClose}
+            className="py-3 px-4 bg-white hover:bg-neo-cream text-neo-navy border-[2.5px] border-neo-navy font-heading font-bold text-xs uppercase shadow-[2px_2px_0px_#001524] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer"
+          >
+            Keep Haggling
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const NowZone = React.memo(function NowZone({
   advisory,
   currentRound,
   maxRounds,
   sellerIsSpeaking,
   hasQueuedSuggestion,
+  candidateLockDeal,
+  isDealLocked,
+  lockedDealData,
+  onOpenLockModal,
   t,
 }) {
   const [dismissedIndices, setDismissedIndices] = useState(new Set());
@@ -457,6 +611,37 @@ const NowZone = React.memo(function NowZone({
           </div>
         </div>
       </div>
+
+      {/* Deal Officially Locked Banner */}
+      {isDealLocked && (
+        <div className="mb-3 p-3 bg-emerald-400 border-[2.5px] border-neo-navy rounded shadow-[2px_2px_0px_#001524] text-center">
+          <div className="flex items-center justify-center gap-1.5 font-heading font-black text-sm text-neo-navy uppercase">
+            <CheckCircle2 className="w-4 h-4 text-neo-navy" />
+            <span>Deal Officially Locked!</span>
+          </div>
+          <p className="text-[11px] font-bold text-neo-navy/90 mt-0.5">
+            Agreed Price: ${lockedDealData?.agreed_price ? Number(lockedDealData.agreed_price).toFixed(2) : '—'} / unit
+            {lockedDealData?.total_value ? ` • Total: $${Number(lockedDealData.total_value).toFixed(2)}` : ''}
+          </p>
+        </div>
+      )}
+
+      {/* Lock Deal Opportunity Banner */}
+      {candidateLockDeal && !isDealLocked && (
+        <div className="mb-3 p-3 bg-emerald-100 border-[2.5px] border-emerald-800 rounded flex items-center justify-between gap-3 shadow-[2px_2px_0px_#001524] animate-pulse">
+          <div className="flex items-center gap-2 text-xs font-heading font-black text-emerald-950">
+            <Sparkles className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>Deal Opportunity at ${candidateLockDeal.price.toFixed(2)} / unit!</span>
+          </div>
+          <button
+            onClick={onOpenLockModal}
+            className="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-neo-navy border-2 border-neo-navy font-heading font-black text-xs uppercase shadow-[2px_2px_0px_#001524] hover:translate-x-[1px] hover:translate-y-[1px] flex items-center gap-1 cursor-pointer transition-all"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>Lock Deal</span>
+          </button>
+        </div>
+      )}
 
       {/* Seller Speaking / Queued Suggestion Dot */}
       {(sellerIsSpeaking || hasQueuedSuggestion) && (
@@ -615,6 +800,9 @@ export default function PeithoPage() {
     buyerScore,
     sellerIsSpeaking,
     hasQueuedSuggestion,
+    isDealLocked,
+    lockedDealData,
+    lockDeal,
   } = usePeithoCall();
 
   const i18n = useI18n ? useI18n() : null;
@@ -639,6 +827,113 @@ export default function PeithoPage() {
   const [typedText, setTypedText] = useState('');
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [showMeetHelp, setShowMeetHelp] = useState(false);
+
+  const [showLockDealModal, setShowLockDealModal] = useState(false);
+  const [dismissedDealPrice, setDismissedDealPrice] = useState(null);
+
+  // Detect when buyer price comes near target and agreement is reached (and >= min_floor)
+  const candidateLockDeal = useMemo(() => {
+    if (isDealLocked) return null;
+    const minFloor = Number(config.min_floor) || 0;
+    const targetCounter = Number(currentCounter) || Number(config.base_price) || 0;
+
+    // 1. Explicit backend advisory signal
+    if (advisory?.deal_lockable && advisory?.lockable_price) {
+      if (advisory.lockable_price >= minFloor) {
+        return {
+          price: Number(advisory.lockable_price),
+          reason: advisory.lock_reason || 'Buyer agreed to price within target range',
+          source: 'advisory',
+        };
+      }
+    }
+
+    if (advisory?.action === 'ACCEPT') {
+      const p = advisory.extracted_buyer_offer || advisory.counter_price || targetCounter;
+      if (p >= minFloor) {
+        return {
+          price: Number(p),
+          reason: 'Engine recommends accepting favorable buyer terms',
+          source: 'engine_accept',
+        };
+      }
+    }
+
+    // 2. Transcript & intent evaluation on latest buyer utterance
+    if (transcripts.length > 0) {
+      const buyerLines = transcripts.filter((t) => t.channel === 'BUYER');
+      if (buyerLines.length > 0) {
+        const lastBuyer = buyerLines[buyerLines.length - 1];
+        const textLower = lastBuyer.text.toLowerCase();
+        const agreementWords = [
+          'deal',
+          'agree',
+          'agreed',
+          'done',
+          'sounds good',
+          'take it',
+          'accept',
+          'lock',
+          'fair',
+          'fine',
+          'ok',
+          'okay',
+          "let's do it",
+          'we have a deal',
+          "i'll take",
+        ];
+        const hasAgreement = agreementWords.some((w) => textLower.includes(w));
+
+        const numMatches = textLower.match(/\$?\s*([0-9]+(?:\.[0-9]+)?)/g);
+        let detectedPrice = null;
+        if (numMatches) {
+          for (const m of numMatches) {
+            const val = parseFloat(m.replace('$', '').trim());
+            if (!isNaN(val) && val >= minFloor && val <= config.base_price * 1.5) {
+              detectedPrice = val;
+              break;
+            }
+          }
+        }
+
+        const effectivePrice = detectedPrice ?? targetCounter;
+        const isNear =
+          effectivePrice >= targetCounter ||
+          (targetCounter - effectivePrice) / Math.max(targetCounter, 1) <= 0.08;
+
+        if (hasAgreement && effectivePrice >= minFloor && (isNear || (buyerScore?.score ?? 0) >= 70)) {
+          return {
+            price: Number(effectivePrice),
+            reason: detectedPrice
+              ? `Buyer agreed to $${effectivePrice.toFixed(2)} (near target $${targetCounter.toFixed(2)})`
+              : `Buyer accepted target quote of $${targetCounter.toFixed(2)}`,
+            source: 'transcript_agreement',
+          };
+        }
+      }
+    }
+
+    return null;
+  }, [isDealLocked, advisory, config.min_floor, config.base_price, currentCounter, transcripts, buyerScore]);
+
+  // Automatically trigger popup modal when deal agreement is detected
+  useEffect(() => {
+    if (candidateLockDeal && !isDealLocked && dismissedDealPrice !== candidateLockDeal.price) {
+      setShowLockDealModal(true);
+    }
+  }, [candidateLockDeal, isDealLocked, dismissedDealPrice]);
+
+  const handleLockDeal = (price) => {
+    lockDeal(price);
+    setShowLockDealModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowLockDealModal(false);
+    if (candidateLockDeal) {
+      setDismissedDealPrice(candidateLockDeal.price);
+    }
+  };
 
   const transcriptEndRef = useRef(null);
 
@@ -688,6 +983,24 @@ export default function PeithoPage() {
 
         {/* Live Status Indicators */}
         <div className="flex items-center gap-3">
+          {isDealLocked && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-400 text-neo-navy border-2 border-neo-navy rounded text-xs font-heading font-black shadow-[2px_2px_0px_#001524]">
+              <Lock className="w-3.5 h-3.5 text-neo-navy" />
+              <span>DEAL LOCKED</span>
+            </div>
+          )}
+
+          {candidateLockDeal && !isDealLocked && (
+            <button
+              onClick={() => setShowLockDealModal(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-emerald-400 hover:bg-emerald-300 text-neo-navy border-2 border-neo-navy rounded text-xs font-heading font-black shadow-[2px_2px_0px_#001524] cursor-pointer animate-pulse transition-all"
+              title="Open Lock Deal Modal"
+            >
+              <Lock className="w-3.5 h-3.5 text-neo-navy" />
+              <span>LOCK DEAL (${candidateLockDeal.price.toFixed(2)})</span>
+            </button>
+          )}
+
           <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-neo-cream border-2 border-neo-navy rounded text-xs font-heading font-bold shadow-[2px_2px_0px_#001524]">
             <Radio className={`w-3.5 h-3.5 ${isCallActive ? 'text-neo-orange animate-pulse' : 'text-neo-navy/40'}`} />
             <span>{isCallActive ? 'LIVE SESSION' : 'OFFLINE'}</span>
@@ -1099,6 +1412,10 @@ export default function PeithoPage() {
               maxRounds={config.max_rounds}
               sellerIsSpeaking={sellerIsSpeaking}
               hasQueuedSuggestion={hasQueuedSuggestion}
+              candidateLockDeal={candidateLockDeal}
+              isDealLocked={isDealLocked}
+              lockedDealData={lockedDealData}
+              onOpenLockModal={() => setShowLockDealModal(true)}
               t={t}
             />
 
@@ -1178,6 +1495,16 @@ export default function PeithoPage() {
           </section>
         </main>
       )}
+
+      {/* ── LOCK DEAL CONFIRMATION POPUP MODAL ── */}
+      <LockDealModal
+        isOpen={showLockDealModal}
+        onClose={handleCloseModal}
+        deal={candidateLockDeal}
+        config={config}
+        onLock={handleLockDeal}
+        t={t}
+      />
     </div>
   );
 }

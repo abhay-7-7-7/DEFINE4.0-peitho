@@ -109,6 +109,9 @@ class AdvisoryResult(BaseModel):
         default="template",
         description="Source of tactical responses: 'template' (Stage 1) or 'ai' (Stage 2)",
     )
+    deal_lockable: bool = False
+    lockable_price: Optional[float] = None
+    lock_reason: Optional[str] = None
     timing: Optional[Dict[str, float]] = Field(
         default=None,
         description="Content-free millisecond timing markers for the turn",
