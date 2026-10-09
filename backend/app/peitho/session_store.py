@@ -8,6 +8,8 @@ import structlog
 
 from ..agents.negotiation_engine import NegotiationState, BuyerArchetype
 from .schemas import PeithoSession, PeithoSessionConfig, PeithoSessionSummary
+from .scoring import DealLikelihoodEngine
+from .intel import SuggestionHistoryTracker
 
 logger = structlog.get_logger(__name__)
 
@@ -55,6 +57,8 @@ class PeithoSessionStore:
             session_id=session_id,
             config=config,
             master_state=master_state,
+            scoring_engine=DealLikelihoodEngine(session_id),
+            history_tracker=SuggestionHistoryTracker(window_turns=3),
         )
 
         self._sessions[session_id] = session

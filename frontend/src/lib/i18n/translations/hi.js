@@ -443,6 +443,39 @@ const hi = {
         refresh: 'रिफ्रेश',
         close: 'बंद करें',
         cheaperThanMarket: 'बाज़ार से {count} सस्ता',
+    },
+
+    // Peitho Live Copilot
+    peitho: {
+        dealLikelihoodEstimate: 'सौदा संभावना (अनुमान)',
+        confidence: 'विश्वसनीयता',
+        provisional: 'अस्थायी',
+        intents: {
+            hold: 'HOLD',
+            bridge: 'BRIDGE',
+            close: 'CLOSE',
+            probe: 'PROBE',
+        },
+        actions: {
+            copy: 'कॉपी करें',
+            copied: 'कॉपी हो गया!',
+            used: 'इस्तेमाल किया',
+            dismiss: 'हटाएं',
+        },
+        aiIntel: 'एआई संकेत',
+        instantTemplate: 'त्वरित टेम्पलेट',
+        suggestionReady: 'सुझाव तैयार है (विक्रेता बोल रहा है...)',
+        followUp: 'अगला संकेत:',
+        buyerState: {
+            title: 'खरीदार की स्थिति',
+            sentiment: 'भावना',
+            buyingSignal: 'खरीद संकेत',
+            openObjections: 'खुली आपत्तियां',
+        },
+        telemetry: 'PRANE-X इंजन टेलीमेट्री',
+        strategyRationale: 'रणनीति का आधार',
+        targetQuote: 'लक्षित भाव',
+        recommendation: 'इंजन अनुशंसा',
     }
 };
 

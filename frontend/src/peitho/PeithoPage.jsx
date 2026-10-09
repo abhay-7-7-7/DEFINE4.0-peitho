@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Mic,
@@ -8,6 +8,8 @@ import {
   Copy,
   Check,
   TrendingUp,
+  TrendingDown,
+  Minus,
   Shield,
   Volume2,
   VolumeX,
@@ -20,8 +22,10 @@ import {
   Activity,
   Send,
   Zap,
+  CheckCircle2,
 } from 'lucide-react';
 import { usePeithoCall } from './usePeithoCall';
+import { useI18n } from '../context/I18nContext';
 
 const TranscriptItem = React.memo(function TranscriptItem({ t }) {
   const isSeller = t.channel === 'SELLER';
@@ -55,6 +59,533 @@ const TranscriptItem = React.memo(function TranscriptItem({ t }) {
   );
 });
 
+const TranscriptFeed = React.memo(function TranscriptFeed({
+  transcripts,
+  partialSellerText,
+  partialBuyerText,
+  transcriptEndRef,
+}) {
+  return (
+    <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+      {transcripts.length === 0 && !partialSellerText && !partialBuyerText && (
+        <div className="h-full flex flex-col items-center justify-center text-center p-6 text-neo-navy/50">
+          <Activity className="w-8 h-8 mb-2 animate-bounce opacity-40" />
+          <p className="font-heading font-bold text-sm">Listening for conversation...</p>
+          <p className="text-xs max-w-xs mt-1">
+            Speak into your microphone or let the buyer speak in Google Meet. Speech appears here automatically.
+          </p>
+        </div>
+      )}
+
+      {transcripts.map((t) => (
+        <TranscriptItem key={t.id} t={t} />
+      ))}
+
+      {partialSellerText && (
+        <div className="flex flex-col items-end opacity-75 animate-pulse">
+          <span className="text-[10px] font-mono font-medium text-gray-500 mb-0.5">YOU (speaking...):</span>
+          <div className="max-w-[85%] p-2.5 border-2 border-dashed border-gray-400 bg-gray-100 text-gray-700 text-xs italic rounded">
+            "{partialSellerText}"
+          </div>
+        </div>
+      )}
+
+      {partialBuyerText && (
+        <div className="flex flex-col items-start opacity-75 animate-pulse">
+          <span className="text-[10px] font-mono font-medium text-gray-500 mb-0.5">BUYER (speaking...):</span>
+          <div className="max-w-[85%] p-2.5 border-2 border-dashed border-gray-400 bg-gray-100 text-gray-700 text-xs italic rounded">
+            "{partialBuyerText}"
+          </div>
+        </div>
+      )}
+
+      <div ref={transcriptEndRef} />
+    </div>
+  );
+});
+
+function ScoreSparkline({ history, currentScore }) {
+  const points = useMemo(() => {
+    if (!history || history.length === 0) {
+      return [{ round: 0, score: currentScore }];
+    }
+    return history;
+  }, [history, currentScore]);
+
+  const width = 90;
+  const height = 26;
+  const pad = 3;
+
+  if (points.length < 2) {
+    const clamped = Math.max(0, Math.min(100, currentScore));
+    const y = height - pad - (clamped / 100) * (height - 2 * pad);
+    return (
+      <svg width={width} height={height} className="overflow-visible">
+        <line x1={pad} y1={height / 2} x2={width - pad} y2={height / 2} stroke="#CBD5E1" strokeWidth="1" strokeDasharray="2,2" />
+        <circle cx={width / 2} cy={y} r="3" fill="#0EA5E9" stroke="#001524" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+
+  const coords = points.map((p, i) => {
+    const x = pad + (i / (points.length - 1)) * (width - 2 * pad);
+    const scoreVal = Math.max(0, Math.min(100, p.score));
+    const y = height - pad - (scoreVal / 100) * (height - 2 * pad);
+    return { x, y };
+  });
+
+  const polylineStr = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+
+  return (
+    <svg width={width} height={height} className="overflow-visible" title="Score history per round">
+      <polyline
+        fill="none"
+        stroke="#001524"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={polylineStr}
+      />
+      {coords.map((c, i) => (
+        <circle
+          key={i}
+          cx={c.x}
+          cy={c.y}
+          r={i === coords.length - 1 ? 3.5 : 2}
+          fill={i === coords.length - 1 ? "#F97316" : "#0284C7"}
+          stroke="#001524"
+          strokeWidth="1.5"
+        />
+      ))}
+    </svg>
+  );
+}
+
+const DealLikelihoodCard = React.memo(function DealLikelihoodCard({ buyerScore, t }) {
+  const targetScore = buyerScore.score ?? 50;
+  const [displayScore, setDisplayScore] = useState(targetScore);
+
+  useEffect(() => {
+    if (displayScore === targetScore) return;
+    const diff = targetScore - displayScore;
+    const step = diff > 0 ? 1 : -1;
+    const timer = setInterval(() => {
+      setDisplayScore((curr) => {
+        if (curr === targetScore) {
+          clearInterval(timer);
+          return curr;
+        }
+        return curr + step;
+      });
+    }, 20);
+    return () => clearInterval(timer);
+  }, [targetScore, displayScore]);
+
+  const band = (buyerScore.band || 'medium').toLowerCase();
+  const bandBadge =
+    band === 'high'
+      ? 'bg-emerald-500 text-neo-cream border-neo-navy'
+      : band === 'low'
+      ? 'bg-rose-500 text-neo-cream border-neo-navy'
+      : 'bg-amber-400 text-neo-navy border-neo-navy';
+
+  const barColor =
+    band === 'high' ? 'bg-emerald-500' : band === 'low' ? 'bg-rose-500' : 'bg-amber-400';
+
+  const trend = buyerScore.trend || 'flat';
+  const delta = buyerScore.delta || 0;
+  const isProvisional = Boolean(buyerScore.provisional);
+
+  return (
+    <div className={`neo-card p-4 bg-white relative transition-all duration-200 ${isProvisional ? 'opacity-85 border-dashed' : ''}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-1.5">
+          <Activity className="w-4 h-4 text-neo-orange" />
+          <span className="font-heading font-black text-xs uppercase tracking-wider text-neo-navy">
+            {t ? t('peitho.dealLikelihoodEstimate', 'Deal likelihood (estimate)') : 'Deal likelihood (estimate)'}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {isProvisional && (
+            <span className="text-[10px] font-heading font-bold px-1.5 py-0.2 bg-amber-100 text-amber-900 border border-amber-300 rounded animate-pulse">
+              {t ? t('peitho.provisional', 'Provisional') : 'Provisional'}
+            </span>
+          )}
+          <span className="text-[10px] font-mono font-medium text-neo-navy/60 capitalize">
+            {t ? t('peitho.confidence', 'Confidence') : 'Confidence'}: {buyerScore.confidence || 'medium'}
+          </span>
+        </div>
+      </div>
+
+      {/* Main Metric Row: Big score, delta arrow, sparkline */}
+      <div className="flex items-center justify-between gap-3 my-2">
+        {/* Score & Band */}
+        <div className="flex items-baseline gap-2">
+          <span className={`text-4xl font-heading font-black tracking-tight ${isProvisional ? 'text-neo-navy/70' : 'text-neo-navy'}`}>
+            {displayScore}
+          </span>
+          <span className="text-sm font-heading font-bold text-neo-navy/40">/100</span>
+
+          <span className={`text-[11px] font-heading font-black uppercase px-2 py-0.5 border-2 rounded shadow-[1px_1px_0px_#001524] ${bandBadge}`}>
+            {band}
+          </span>
+        </div>
+
+        {/* Delta & Trend */}
+        <div className="flex items-center gap-1 font-heading font-black text-xs">
+          {trend === 'up' && (
+            <span className="text-emerald-700 flex items-center bg-emerald-50 px-1.5 py-0.5 border border-emerald-300 rounded">
+              <TrendingUp className="w-3.5 h-3.5 mr-0.5 text-emerald-600" />
+              +{delta}
+            </span>
+          )}
+          {trend === 'down' && (
+            <span className="text-rose-700 flex items-center bg-rose-50 px-1.5 py-0.5 border border-rose-300 rounded">
+              <TrendingDown className="w-3.5 h-3.5 mr-0.5 text-rose-600" />
+              {delta}
+            </span>
+          )}
+          {trend === 'flat' && (
+            <span className="text-neo-navy/60 flex items-center bg-gray-50 px-1.5 py-0.5 border border-gray-300 rounded">
+              <Minus className="w-3 h-3 mr-0.5" />
+              0
+            </span>
+          )}
+        </div>
+
+        {/* Sparkline per round */}
+        <div className="bg-neo-cream/40 px-2 py-1 border border-neo-navy/20 rounded flex flex-col items-center">
+          <div className="text-[9px] font-mono text-neo-navy/50 uppercase mb-0.5">Round Trend</div>
+          <ScoreSparkline history={buyerScore.history} currentScore={displayScore} />
+        </div>
+      </div>
+
+      {/* Gauge Progress Bar */}
+      <div className="w-full h-2.5 bg-neo-cream border border-neo-navy rounded-xs overflow-hidden mb-2.5">
+        <div
+          className={`h-full ${barColor} transition-all duration-300 ease-out`}
+          style={{ width: `${Math.max(3, Math.min(100, displayScore))}%` }}
+        />
+      </div>
+
+      {/* Top 3 Drivers Chips */}
+      {buyerScore.drivers && buyerScore.drivers.length > 0 && (
+        <div className="space-y-1">
+          <div className="text-[10px] font-heading font-black uppercase text-neo-navy/60">
+            Top Drivers
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {buyerScore.drivers.slice(0, 3).map((d, i) => {
+              const isPos = d.effect === 'positive';
+              return (
+                <span
+                  key={i}
+                  className={`text-[10px] font-medium px-2 py-0.5 rounded border flex items-center gap-1 ${
+                    isPos
+                      ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                      : 'bg-rose-50 text-rose-900 border-rose-300'
+                  }`}
+                >
+                  <span className="font-bold">{isPos ? '+' : '–'}</span>
+                  {d.text}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+const BuyerStateStrip = React.memo(function BuyerStateStrip({ buyerState, t }) {
+  const sentiment = buyerState?.sentiment || 'neutral';
+  const buyingSignal = buyerState?.buying_signal || 'medium';
+  const objections = buyerState?.open_objections ?? 0;
+
+  return (
+    <div className="bg-neo-cream/90 border-2 border-neo-navy px-3 py-1.5 rounded flex items-center justify-between text-xs font-heading">
+      <div className="text-[10px] font-black uppercase tracking-wider text-neo-navy/70 flex items-center gap-1">
+        <span>BUYER STATE:</span>
+      </div>
+
+      <div className="flex items-center gap-2 text-[11px]">
+        {/* Sentiment */}
+        <span className="bg-white px-2 py-0.5 border border-neo-navy/30 rounded font-semibold text-neo-navy">
+          Sentiment: <strong className="capitalize">{sentiment}</strong>
+        </span>
+
+        {/* Buying signal */}
+        <span
+          className={`px-2 py-0.5 border rounded font-black capitalize ${
+            buyingSignal === 'high'
+              ? 'bg-emerald-100 text-emerald-800 border-emerald-400'
+              : buyingSignal === 'low'
+              ? 'bg-rose-100 text-rose-800 border-rose-400'
+              : 'bg-amber-100 text-amber-900 border-amber-400'
+          }`}
+        >
+          Signal: {buyingSignal}
+        </span>
+
+        {/* Open objections */}
+        <span className="bg-white px-2 py-0.5 border border-neo-navy/30 rounded font-semibold text-neo-navy">
+          {objections} Open Objections
+        </span>
+      </div>
+    </div>
+  );
+});
+
+const NowZone = React.memo(function NowZone({
+  advisory,
+  currentRound,
+  maxRounds,
+  sellerIsSpeaking,
+  hasQueuedSuggestion,
+  t,
+}) {
+  const [dismissedIndices, setDismissedIndices] = useState(new Set());
+  const [usedIndices, setUsedIndices] = useState(new Set());
+  const [copiedIndex, setCopiedIndex] = useState(null);
+
+  useEffect(() => {
+    setDismissedIndices(new Set());
+    setUsedIndices(new Set());
+  }, [advisory?.recommendation_id, advisory?.turn]);
+
+  const handleCopy = (text, idx) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(idx);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleUsed = (idx) => {
+    setUsedIndices((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  };
+
+  const handleDismiss = (idx) => {
+    setDismissedIndices((prev) => new Set(prev).add(idx));
+  };
+
+  if (!advisory) {
+    return (
+      <div className="neo-card p-5 bg-white text-center text-xs text-neo-navy/60">
+        Waiting for buyer's initial statement to compute advisory guidance...
+      </div>
+    );
+  }
+
+  const rawOptions =
+    advisory.options && advisory.options.length > 0
+      ? advisory.options
+      : (advisory.suggested_replies || []).map((txt, idx) => ({
+          text: txt,
+          intent: idx === 0 ? 'hold' : 'bridge',
+          why: '',
+          followup: null,
+        }));
+
+  const visibleOptions = rawOptions.filter((_, idx) => !dismissedIndices.has(idx));
+
+  const intentBadges = {
+    hold: { bg: 'bg-neo-navy text-neo-cream border-neo-navy', label: 'HOLD' },
+    bridge: { bg: 'bg-neo-teal text-neo-cream border-neo-navy', label: 'BRIDGE' },
+    close: { bg: 'bg-emerald-600 text-neo-cream border-neo-navy', label: 'CLOSE' },
+    probe: { bg: 'bg-purple-600 text-neo-cream border-neo-navy', label: 'PROBE' },
+  };
+
+  return (
+    <div className="neo-card p-5 bg-white relative overflow-hidden transition-opacity duration-200">
+      {/* Top Header */}
+      <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b-2 border-neo-navy/15">
+        <div className="flex items-center gap-2">
+          {/* Action Badge */}
+          <div
+            className={`text-base sm:text-lg font-heading font-black px-3 py-0.5 border-[2.5px] border-neo-navy shadow-[2px_2px_0px_#001524] uppercase ${
+              advisory.action === 'ACCEPT'
+                ? 'bg-emerald-400 text-neo-navy'
+                : advisory.action === 'COUNTER'
+                ? 'bg-neo-orange text-neo-navy'
+                : advisory.action === 'FINAL_OFFER'
+                ? 'bg-purple-400 text-neo-navy'
+                : 'bg-neo-maroon text-neo-cream'
+            }`}
+          >
+            {advisory.action}
+          </div>
+
+          <span className="font-mono text-xs font-bold text-neo-navy/70">
+            Round {currentRound} / {maxRounds}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Source Badge */}
+          <span
+            className={`px-2 py-0.5 text-[10px] font-heading font-black border rounded flex items-center gap-1 ${
+              advisory.source === 'ai'
+                ? 'bg-purple-100 text-purple-900 border-purple-300'
+                : 'bg-amber-100 text-amber-900 border-amber-300'
+            }`}
+          >
+            {advisory.source === 'ai' ? (
+              <>
+                <Sparkles className="w-3 h-3 text-purple-600" />
+                {t ? t('peitho.aiIntel', 'AI INTEL') : 'AI INTEL'}
+              </>
+            ) : (
+              <>
+                <Zap className="w-3 h-3 text-amber-600" />
+                {t ? t('peitho.instantTemplate', 'INSTANT TEMPLATE') : 'INSTANT TEMPLATE'}
+              </>
+            )}
+          </span>
+
+          {/* Counter Price */}
+          <div className="text-right">
+            <span className="text-[10px] font-heading font-bold uppercase text-neo-navy/60 block leading-tight">Quote</span>
+            <span className="text-xl font-heading font-black text-neo-navy">
+              ${Number(advisory.counter_price).toFixed(2)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Seller Speaking / Queued Suggestion Dot */}
+      {(sellerIsSpeaking || hasQueuedSuggestion) && (
+        <div className="mb-2 px-2.5 py-1 bg-amber-50 border-2 border-amber-400 rounded flex items-center gap-2 text-xs text-amber-900 font-semibold animate-pulse">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
+          <span>
+            {t ? t('peitho.suggestionReady', 'Suggestion ready (seller speaking...)') : 'Suggestion ready (seller speaking...)'}
+          </span>
+        </div>
+      )}
+
+      {/* Strategy Rationale */}
+      {advisory.reasoning && (
+        <p className="text-xs text-neo-navy/80 bg-neo-cream/60 p-2 border border-neo-navy/30 rounded font-medium mb-3">
+          💡 <strong>{t ? t('peitho.strategyRationale', 'Strategy Rationale') : 'Strategy Rationale'}:</strong> {advisory.reasoning}
+        </p>
+      )}
+
+      {/* Options Cards */}
+      <div className="space-y-2.5 transition-opacity duration-200">
+        <div className="text-[11px] font-heading font-black text-neo-navy uppercase tracking-wider flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-neo-orange" />
+            Tactical Spoken Options:
+          </span>
+          <span className="text-[10px] font-mono text-neo-navy/50">{visibleOptions.length} available</span>
+        </div>
+
+        {visibleOptions.length === 0 ? (
+          <div className="p-3 bg-neo-cream/40 border border-neo-navy/20 rounded text-xs text-neo-navy/50 italic text-center">
+            All options dismissed for this turn.
+          </div>
+        ) : (
+          visibleOptions.map((opt, idx) => {
+            const intentKey = (opt.intent || 'hold').toLowerCase();
+            const badge = intentBadges[intentKey] || intentBadges.hold;
+            const isUsed = usedIndices.has(idx);
+            const isCopied = copiedIndex === idx;
+
+            return (
+              <div
+                key={idx}
+                className={`p-3 border-2 border-neo-navy rounded shadow-[2px_2px_0px_#001524] relative group transition-all duration-150 ${
+                  isUsed ? 'bg-emerald-50/80 border-emerald-700' : 'bg-neo-cream/70 hover:bg-neo-cream'
+                }`}
+              >
+                {/* Header row: Intent badge & Action buttons */}
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span
+                    className={`text-[10px] font-heading font-black px-2 py-0.5 border rounded uppercase ${badge.bg}`}
+                  >
+                    {badge.label}
+                  </span>
+
+                  <div className="flex items-center gap-1">
+                    {/* Copy Button */}
+                    <button
+                      onClick={() => handleCopy(opt.text, idx)}
+                      className="px-1.5 py-0.5 bg-white border border-neo-navy hover:bg-neo-orange/20 rounded text-[10px] font-heading font-bold flex items-center gap-0.5 transition-all"
+                      title="Copy text"
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-700">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 text-neo-navy" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Used Button */}
+                    <button
+                      onClick={() => handleUsed(idx)}
+                      className={`px-1.5 py-0.5 border rounded text-[10px] font-heading font-bold flex items-center gap-0.5 transition-all ${
+                        isUsed
+                          ? 'bg-emerald-500 text-white border-emerald-700'
+                          : 'bg-white text-neo-navy border-neo-navy hover:bg-emerald-50'
+                      }`}
+                      title="Mark as used in call"
+                    >
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>{isUsed ? 'Used' : 'Use'}</span>
+                    </button>
+
+                    {/* Dismiss Button */}
+                    <button
+                      onClick={() => handleDismiss(idx)}
+                      className="px-1 py-0.5 bg-white border border-neo-navy hover:bg-rose-100 text-neo-navy/60 hover:text-rose-700 rounded text-[10px] transition-all"
+                      title="Dismiss option"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                {/* Spoken Text */}
+                <p className="text-xs sm:text-sm font-semibold text-neo-navy leading-snug">
+                  "{opt.text}"
+                </p>
+
+                {/* Why line */}
+                {opt.why && (
+                  <p className="text-[11px] text-neo-navy/60 font-medium mt-1">
+                    ↳ <em>{opt.why}</em>
+                  </p>
+                )}
+
+                {/* Follow-up Hint (Top option) */}
+                {idx === 0 && opt.followup && (
+                  <div className="mt-2 p-2 bg-purple-50/90 border border-purple-300 rounded text-[11px] text-purple-950 font-medium flex items-start gap-1.5">
+                    <span className="font-heading font-black text-purple-800 text-[10px] uppercase shrink-0">
+                      If buyer says...:
+                    </span>
+                    <span>{opt.followup}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+});
+
 export default function PeithoPage() {
   const navigate = useNavigate();
   const {
@@ -81,7 +612,13 @@ export default function PeithoPage() {
     startCall,
     endCall,
     sendTypedLine,
+    buyerScore,
+    sellerIsSpeaking,
+    hasQueuedSuggestion,
   } = usePeithoCall();
+
+  const i18n = useI18n ? useI18n() : null;
+  const t = useCallback((key, fallback) => (i18n?.t ? i18n.t(key) : fallback || key), [i18n]);
 
   // Pre-call form parameters
   const [config, setConfig] = useState({
@@ -509,43 +1046,13 @@ export default function PeithoPage() {
               </span>
             </div>
 
-            {/* Scrollable Transcript List */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-              {transcripts.length === 0 && !partialSellerText && !partialBuyerText && (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-neo-navy/50">
-                  <Activity className="w-8 h-8 mb-2 animate-bounce opacity-40" />
-                  <p className="font-heading font-bold text-sm">Listening for conversation...</p>
-                  <p className="text-xs max-w-xs mt-1">
-                    Speak into your microphone or let the buyer speak in Google Meet. Speech appears here automatically.
-                  </p>
-                </div>
-              )}
-
-              {transcripts.map((t) => {
-                return <TranscriptItem key={t.id} t={t} />;
-              })}
-
-              {/* Live Partial Speech Indicators (Grey) */}
-              {partialSellerText && (
-                <div className="flex flex-col items-end opacity-75 animate-pulse">
-                  <span className="text-[10px] font-mono font-medium text-gray-500 mb-0.5">YOU (speaking...):</span>
-                  <div className="max-w-[85%] p-2.5 border-2 border-dashed border-gray-400 bg-gray-100 text-gray-700 text-xs italic rounded">
-                    "{partialSellerText}"
-                  </div>
-                </div>
-              )}
-
-              {partialBuyerText && (
-                <div className="flex flex-col items-start opacity-75 animate-pulse">
-                  <span className="text-[10px] font-mono font-medium text-gray-500 mb-0.5">BUYER (speaking...):</span>
-                  <div className="max-w-[85%] p-2.5 border-2 border-dashed border-gray-400 bg-gray-100 text-gray-700 text-xs italic rounded">
-                    "{partialBuyerText}"
-                  </div>
-                </div>
-              )}
-
-              <div ref={transcriptEndRef} />
-            </div>
+            {/* Scrollable Transcript List (Memoized) */}
+            <TranscriptFeed
+              transcripts={transcripts}
+              partialSellerText={partialSellerText}
+              partialBuyerText={partialBuyerText}
+              transcriptEndRef={transcriptEndRef}
+            />
 
             {/* Manual Speech Injection Form */}
               <form onSubmit={handleSendManual} className="mt-3 pt-3 border-t-2 border-neo-navy flex gap-2">
@@ -579,124 +1086,21 @@ export default function PeithoPage() {
 
           {/* ── COLUMN 2: STRATEGIC ADVISORY & TACTICAL REPLIES (5 Cols) ── */}
           <section className="lg:col-span-5 flex flex-col gap-4">
-            {/* PRANE-X Action Card */}
-            <div className="neo-card p-5 bg-white relative overflow-hidden">
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <div className="text-[11px] font-heading font-black text-neo-navy/60 uppercase tracking-widest">
-                  ENGINE RECOMMENDATION
-                </div>
+            {/* Deal Likelihood Live Score Card */}
+            <DealLikelihoodCard buyerScore={buyerScore} t={t} />
 
-                {advisory && (
-                  <span
-                    className={`px-2 py-0.5 text-[10px] font-heading font-black border rounded flex items-center gap-1 transition-all ${
-                      advisory.source === 'ai'
-                        ? 'bg-purple-100 text-purple-900 border-purple-300'
-                        : 'bg-amber-100 text-amber-900 border-amber-300'
-                    }`}
-                  >
-                    {advisory.source === 'ai' ? (
-                      <>
-                        <Sparkles className="w-3 h-3 text-purple-600" />
-                        AI INTEL
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-3 h-3 text-amber-600" />
-                        INSTANT TEMPLATE
-                      </>
-                    )}
-                  </span>
-                )}
-              </div>
+            {/* Live Buyer State Strip */}
+            <BuyerStateStrip buyerState={buyerScore?.buyerState} t={t} />
 
-              {advisory ? (
-                <>
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div
-                      className={`text-lg sm:text-xl font-heading font-black px-3 py-1 border-[3px] border-neo-navy shadow-[3px_3px_0px_#001524] uppercase ${
-                        advisory.action === 'ACCEPT'
-                          ? 'bg-emerald-400 text-neo-navy'
-                          : advisory.action === 'COUNTER'
-                          ? 'bg-neo-orange text-neo-navy'
-                          : advisory.action === 'FINAL_OFFER'
-                          ? 'bg-purple-400 text-neo-navy'
-                          : 'bg-neo-maroon text-neo-cream'
-                      }`}
-                    >
-                      {advisory.action}
-                    </div>
-
-                    <div className="text-right">
-                      <div className="text-[10px] font-heading font-bold uppercase text-neo-navy/60">Target Quote</div>
-                      <div className="text-2xl font-heading font-black text-neo-navy">
-                        ${advisory.counter_price.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {advisory.timing && (
-                    <div className="flex flex-wrap items-center gap-1.5 mb-3 text-[10px] font-mono text-gray-500">
-                      {advisory.timing.t2_to_t5_ms !== undefined && (
-                        <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
-                          ⚡ Card: {advisory.timing.t2_to_t5_ms}ms
-                        </span>
-                      )}
-                      {advisory.timing.t2_to_t7_ms !== undefined && (
-                        <span className="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">
-                          ✨ AI: {advisory.timing.t2_to_t7_ms}ms
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  <p className="text-xs text-neo-navy/80 bg-neo-cream p-2.5 border-2 border-neo-navy rounded font-medium mb-4">
-                    💡 <strong>Strategy Rationale:</strong> {advisory.reasoning}
-                  </p>
-                </>
-              ) : (
-                <div className="p-4 border-2 border-dashed border-neo-navy/30 rounded text-center text-xs text-neo-navy/60 my-2">
-                  Waiting for buyer's initial statement to compute advisory guidance...
-                </div>
-              )}
-
-              {/* TACTICAL SPOKEN REPLIES */}
-              <div className="mt-2">
-                <div className="text-[11px] font-heading font-black text-neo-navy uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-neo-orange" />
-                  What You Should Say Out Loud:
-                </div>
-
-                {advisory && advisory.suggested_replies && advisory.suggested_replies.length > 0 ? (
-                  <div className="space-y-2.5">
-                    {advisory.suggested_replies.map((reply, idx) => (
-                      <div
-                        key={idx}
-                        className="p-3 bg-neo-cream/70 border-2 border-neo-navy rounded shadow-[2px_2px_0px_#001524] relative group"
-                      >
-                        <p className="text-xs sm:text-sm font-semibold text-neo-navy pr-8 leading-snug">
-                          "{reply}"
-                        </p>
-                        <button
-                          onClick={() => handleCopyReply(reply, idx)}
-                          className="absolute top-2.5 right-2.5 p-1 bg-white border border-neo-navy hover:bg-neo-orange/20 rounded transition-all"
-                          title="Copy reply text"
-                        >
-                          {copiedIndex === idx ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5 text-neo-navy" />
-                          )}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-3 bg-neo-cream/40 border border-neo-navy/20 rounded text-xs text-neo-navy/50 italic">
-                    Suggestions will be generated dynamically as the buyer speaks.
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* NOW Zone: Engine Recommendation & Tactical Options */}
+            <NowZone
+              advisory={advisory}
+              currentRound={currentRound}
+              maxRounds={config.max_rounds}
+              sellerIsSpeaking={sellerIsSpeaking}
+              hasQueuedSuggestion={hasQueuedSuggestion}
+              t={t}
+            />
 
             {/* PRANE-X Telemetry Gauges */}
             <div className="neo-card p-4 bg-white">
