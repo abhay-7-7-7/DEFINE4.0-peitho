@@ -302,15 +302,3 @@ Current result: **199 passed, 1 skipped** in about 15 seconds. The suite covers 
 
 This project is released under the **MIT License**. See [LICENSE](./LICENSE) for the full text.
 
----
-
-# Acknowledgements and References
-
-**Prior work:** Peitho was originally developed as TradeMind, a negotiation engine, and extended for DEFINE 4.0 into a real-time conversation copilot.
-<!-- Confirm and, if you like, list exactly which modules were new for DEFINE 4.0. If AI coding assistants were used, disclose that here. -->
-
-**Scope note:** the `/reporter` and `/reputation` routes (SayLess) are a separate module and are not part of Peitho's PS 007 functionality.
-
-**Third-party services and libraries:** ElevenLabs Scribe Realtime, Sarvam AI (Saaras and Bulbul), OpenRouter, Google Gemini, SerpAPI, RapidFuzz, FastAPI, React, Vite, Tailwind CSS, Three.js, BeautifulSoup.
-
-**Concepts:** the Zone of Possible Agreement (ZOPA) follows Raiffa, *The Art and Science of Negotiation* (1982).
