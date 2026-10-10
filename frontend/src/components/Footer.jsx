@@ -1,4 +1,3 @@
-import { TrendingUp, Github, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../context/I18nContext';
 import logoImg from '../assets/logo.jpeg';
@@ -64,14 +63,6 @@ export default function Footer() {
           <p className="text-neo-cream/50 text-sm">
             {t('footer.copyright')}
           </p>
-          <div className="flex items-center gap-4">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-neo-cream/50 hover:text-neo-orange transition-colors">
-              <Github className="w-5 h-5" />
-            </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-neo-cream/50 hover:text-neo-orange transition-colors">
-              <Twitter className="w-5 h-5" />
-            </a>
-          </div>
         </div>
       </div>
     </footer>
