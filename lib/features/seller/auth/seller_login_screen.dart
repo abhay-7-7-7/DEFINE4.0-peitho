@@ -64,28 +64,33 @@ class _SellerLoginScreenState extends ConsumerState<SellerLoginScreen> {
             hint: 'http://10.0.2.2:8000',
           ),
           const SizedBox(height: 12),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              Expanded(
-                child: BkButton(
-                  size: BkButtonSize.sm,
-                  variant: BkButtonVariant.outline,
-                  label: '10.0.2.2',
-                  onPressed: () {
-                    textController.text = 'http://10.0.2.2:8000';
-                  },
-                ),
+              BkButton(
+                size: BkButtonSize.sm,
+                variant: BkButtonVariant.outline,
+                label: '127.0.0.1 (USB)',
+                onPressed: () {
+                  textController.text = 'http://127.0.0.1:8000';
+                },
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: BkButton(
-                  size: BkButtonSize.sm,
-                  variant: BkButtonVariant.outline,
-                  label: '127.0.0.1',
-                  onPressed: () {
-                    textController.text = 'http://127.0.0.1:8000';
-                  },
-                ),
+              BkButton(
+                size: BkButtonSize.sm,
+                variant: BkButtonVariant.outline,
+                label: '10.30.1.95 (Wi-Fi)',
+                onPressed: () {
+                  textController.text = 'http://10.30.1.95:8000';
+                },
+              ),
+              BkButton(
+                size: BkButtonSize.sm,
+                variant: BkButtonVariant.outline,
+                label: '10.0.2.2 (Emulator)',
+                onPressed: () {
+                  textController.text = 'http://10.0.2.2:8000';
+                },
               ),
             ],
           ),
@@ -211,12 +216,43 @@ class _SellerLoginScreenState extends ConsumerState<SellerLoginScreen> {
                                 color: t.mutedForeground,
                               ),
                             ),
+                            const SizedBox(height: 8),
+                            InkWell(
+                              onTap: _showNetworkSettingsDialog,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: t.muted.withAlpha(40),
+                                  border: Border.all(color: t.border, width: 1.5),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.dns_outlined, size: 14, color: t.mutedForeground),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        'Server: $baseUrl',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontFamily: 'DM Mono',
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: t.foreground,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(Icons.edit, size: 12, color: t.mutedForeground),
+                                  ],
+                                ),
+                              ),
+                            ),
                             const SizedBox(height: 16),
 
                             if (authState.errorMessage != null) ...[
                               BkAlert(
                                 title: 'Login Error',
-                                description: authState.errorMessage!,
+                                description: '${authState.errorMessage!}\n(Target: $baseUrl)',
                                 variant: BkAlertVariant.destructive,
                               ),
                               const SizedBox(height: 16),

@@ -1,15 +1,16 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppConfig {
   static const String _prefKeyBaseUrl = 'trademind_api_base_url';
 
-  /// Compile-time default passed via --dart-define=API_URL=...
+  /// Compile-time default passed via --dart-define=API_URL=... or --dart-define=API_BASE_URL=...
   static const String compileTimeBaseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: '',
+    defaultValue: String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: '',
+    ),
   );
 
   /// Compile-time currency symbol or code (defaults to INR ₹)
@@ -23,15 +24,8 @@ class AppConfig {
     if (compileTimeBaseUrl.isNotEmpty) {
       return compileTimeBaseUrl;
     }
-    if (kIsWeb) {
-      return 'http://localhost:8000';
-    }
-    try {
-      if (Platform.isAndroid) {
-        // Standard Android emulator loopback alias
-        return 'http://10.0.2.2:8000';
-      }
-    } catch (_) {}
+    // 127.0.0.1:8000 works on physical Android with USB debugging (adb reverse tcp:8000 tcp:8000),
+    // web, and desktop.
     return 'http://127.0.0.1:8000';
   }
 
@@ -62,7 +56,14 @@ class ApiBaseUrlNotifier extends StateNotifier<String> {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getString(AppConfig._prefKeyBaseUrl);
       if (saved != null && saved.trim().isNotEmpty) {
-        state = saved.trim().replaceAll(RegExp(r'/+$'), '');
+        final cleaned = saved.trim().replaceAll(RegExp(r'/+$'), '');
+        // Clear old 10.0.2.2 emulator default if encountered
+        if (cleaned.contains('10.0.2.2')) {
+          state = AppConfig.defaultFallbackUrl;
+          await prefs.remove(AppConfig._prefKeyBaseUrl);
+        } else {
+          state = cleaned;
+        }
       }
     } catch (_) {}
   }
