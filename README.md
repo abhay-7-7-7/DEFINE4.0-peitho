@@ -6,9 +6,6 @@ The official project submission repository for **DEFINE 4.0 — The World's Real
 
 # Peitho: Real-Time Conversation Copilot
 
-<!-- Add your project cover image below -->
-
-![Project Cover](./assets/cover.png)
 
 ## Team Information
 
@@ -96,11 +93,13 @@ Peitho does three things: **Understand. Advise. Remember.**
 
 <!-- Add screenshots of your project here -->
 
-![Live Call Copilot](./assets/screenshot-1.png)
+![Landing Page](./documents/gitb1.png)
 
-![Live Chat Copilot and profit radar](./assets/screenshot-2.png)
+![Meet Assistance](./documents/gitb2.png)
 
-![Negotiation dashboard and analytics](./assets/screenshot-3.png)
+![Call Back Requests](./documents/gitb3.png)
+
+![Remainder Tab](./documents/gitb4.png)
 
 ---
 
