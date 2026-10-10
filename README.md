@@ -12,17 +12,20 @@ The official project submission repository for **DEFINE 4.0 — The World's Real
 
 ## Team Information
 
-- **Team Name**: [TEAM NAME]
+- **Team Name**: Alt F4
 - **Track**: General (PS 007: Real-Time Conversation Assistant)
 
 ## Team Members
 
+
 | Name | Role | GitHub | LinkedIn |
 |------|------|--------|----------|
-| Adithya Narayan V S | [Role] | [@username](https://github.com/username) | [Profile](https://linkedin.com/in/username) |
-| Full Name | Role | [@username](https://github.com/username) | [Profile](https://linkedin.com/in/username) |
-| Full Name | Role | [@username](https://github.com/username) | [Profile](https://linkedin.com/in/username) |
-| Full Name | Role | [@username](https://github.com/username) | [Profile](https://linkedin.com/in/username) |
+| Abhay Parameswer R | Backend logic,flutter dev | [@abhay-7-7-7](https://github.com/abhay-7-7-7) | [Profile](https://www.linkedin.com/in/abhay-parameswer-r-190624323/) |
+| Adithya Narayan V S | Backend Deterministic logic | [@AdithyaNarayann](https://github.com/AdithyaNarayann) | [Profile](https://www.linkedin.com/in/adithyanarayanvs/) |
+| Deva Nandan M R | Backend logic,Orchestration | [@Xer0oo7](https://github.com/Xer0oo7) | [Profile](www.linkedin.com/in/deva-nandan) |
+| Abhinand N L  | UI/UX | [@username](https://github.com/Abhhinand) | [Profile](https://www.linkedin.com/in/abhinand-nl-975198294?utm_source=share_via&utm_content=profile&utm_medium=member_android) |
+| Niranjan A | UI/UX | [@username](https://github.com/Ninja007-NJ) | [Profile](https://www.linkedin.com/in/niranjan-a-b1783a30b/?isSelfProfile=true) |
+
 
 ---
 
