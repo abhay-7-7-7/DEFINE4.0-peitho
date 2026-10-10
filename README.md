@@ -115,10 +115,6 @@ If you prefer to run it yourself, follow the [Setup Instructions](#setup-instruc
 
 ## System Architecture
 
-<!-- Add your architecture diagram here -->
-
-![System Architecture](./assets/architecture.png)
-
 ```mermaid
 flowchart LR
   subgraph Client["Client: React 19 + Vite 7"]
