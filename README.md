@@ -87,27 +87,13 @@ Peitho does three things: **Understand. Advise. Remember.**
 
 [Watch Project Demo](https://drive.google.com/drive/folders/1xigcN-tbZkOEwU_VARUbgWx327EvIOpI?usp=sharing)
 
-> Replace `VIDEO_ID` with your YouTube video ID.
-
-### Screenshots
-
-<!-- Add screenshots of your project here -->
-
-![Landing Page](./documents/gitb1.png)
-
-![Meet Assistance](./documents/gitb2.png)
-
-![Call Back Requests](./documents/gitb3.png)
-
-![Remainder Tab](./documents/gitb4.png)
-
 ---
 
 # Live Project
 
 <!-- Replace with your deployed URL. If the project is not deployed, delete the link below and keep the sentence. -->
 
-[Visit Live Project]([https://your-project-url.com/](https://drive.google.com/drive/folders/1xigcN-tbZkOEwU_VARUbgWx327EvIOpI?usp=sharing))
+[Visit Live Project]()
 
 If you prefer to run it yourself, follow the [Setup Instructions](#setup-instructions). The whole system runs locally and works with zero external API keys.
 
