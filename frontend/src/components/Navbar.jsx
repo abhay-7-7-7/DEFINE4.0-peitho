@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BarChart3, Settings, Code, Menu, X, Key, Mail, User, LogOut, ChevronDown, Radio, AlertTriangle, Calendar } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Settings, Code, Menu, X, Key, Mail, User, LogOut, ChevronDown, Radio, AlertTriangle, Calendar, PhoneCall } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { getAuthUser, logout as apiLogout, isAuthenticated } from '../lib/api';
 import logoImg from '../assets/logo.jpeg';
@@ -59,7 +59,7 @@ export default function Navbar() {
     { path: '/', label: 'Home', icon: null },
     { path: '/meet-assistant', label: 'Meet Assistant', icon: Radio, highlight: true },
     { path: '/peitho/reminders', label: 'Reminders', icon: Calendar },
-    { path: '/jury', label: 'Negotiate Bot', icon: LayoutDashboard },
+    { path: '/jury', label: 'Callback Requests', icon: PhoneCall },
     { path: '/products', label: 'Products', icon: LayoutDashboard },
     { path: '/authority', label: 'Analytics', icon: BarChart3 },
     { path: '/wallet', label: 'API Reference', icon: Code },
