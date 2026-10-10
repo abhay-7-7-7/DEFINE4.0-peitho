@@ -277,45 +277,6 @@ npm run dev
 
 The app runs at `http://localhost:5173`.
 
-### Environment Variables
-
-**Required in `backend/.env`:**
-
-| Variable | Description |
-|----------|-------------|
-| `JWT_SECRET` | Secret used to sign login tokens |
-| `MYSQL_USER` | MySQL username |
-| `MYSQL_PASSWORD` | MySQL password |
-
-**Optional (everything has a local fallback):**
-
-| Variable | Description |
-|----------|-------------|
-| `PEITHO_STT_PROVIDER` | `typed` (default, no key needed) or `elevenlabs` |
-| `ELEVENLABS_API_KEY` | Enables real-time speech-to-text for the Live Call Copilot |
-| `OPENROUTER_API_KEY` | Enables AI-phrased suggestions and LLM extraction |
-| `SARVAM_API_KEY` | Enables the voice negotiation bot |
-| `SERP_API_KEY` | Enables live competitor price comparison |
-| `MYSQL_DB` | Defaults to `trademind` |
-
-**`frontend/.env`:**
-
-| Variable | Description |
-|----------|-------------|
-| `VITE_API_URL` | Backend URL, for example `http://localhost:8000` |
-| `VITE_GEMINI_API_KEY` | Optional, for live 50+ language UI translation |
-
-## Quick Tour
-
-| Route | What you will see |
-|-------|-------------------|
-| `/meet-assistant` | The Live Call Copilot: transcript, deal likelihood, profit radar, reply cards, Lock Deal |
-| `/chat` | The buyer-facing autonomous negotiation chat |
-| `/products` | Product catalog with price floors and CSV import (login required) |
-| `/authority` | Profit analytics, what-if simulator and market comparison |
-| `/jury` | Live deal tracking and round logs (login required) |
-
-**Try the Live Call Copilot with no API keys:** keep `PEITHO_STT_PROVIDER=typed`, open `/meet-assistant`, start a session, and type buyer and seller lines. With an ElevenLabs key, share your Google Meet tab and tick "Also share tab audio" to stream both sides of a real call.
 
 ## Running Tests
 
