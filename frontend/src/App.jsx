@@ -18,6 +18,7 @@ import ApiAccess from './pages/ApiAccess';
 import EmailSettings from './pages/EmailSettings';
 import Chat from './test-chat/src/Chat';
 import PeithoPage from './peitho/PeithoPage';
+import RemindersCalendarPage from './peitho/reminders/RemindersCalendarPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -72,6 +73,10 @@ function App() {
             <Route path="/meet-assistant" element={<PeithoPage />} />
             <Route path="/meet-asistant" element={<PeithoPage />} />
             <Route path="/peitho" element={<Navigate to="/meet-assistant" replace />} />
+
+            {/* Peitho Reminders Calendar */}
+            <Route path="/peitho/reminders" element={<ProtectedRoute><RemindersCalendarPage /></ProtectedRoute>} />
+            <Route path="/reminders" element={<Navigate to="/peitho/reminders" replace />} />
 
             {/* 404 Catch-all */}
             <Route path="*" element={

@@ -40,6 +40,13 @@
     --input: 200 100% 7%;
     --ring: 30 100% 50%;
     --radius: 0px;
+    --shadow-color: 205 100% 7%;
+    --success: 152 69% 60%;
+    --success-foreground: 205 100% 7%;
+    --warning: 40 100% 50%;
+    --warning-foreground: 205 100% 7%;
+    --info: 212 100% 65%;
+    --info-foreground: 205 100% 7%;
   }
 }
 

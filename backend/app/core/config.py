@@ -77,6 +77,9 @@ class Settings(BaseSettings):
     comparison_mode: str = "we_are_cheaper"  # only show cheaper-than-market items
     market_comparison_ttl: int = 21600  # 6 hours in seconds
     market_allowed_domains: str = "amazon.in,flipkart.com,croma.com"  # for HTML scraper
+
+    # Peitho Reminders
+    peitho_reminder_grace_hours: int = 24
     
     class Config:
         env_file = ".env"

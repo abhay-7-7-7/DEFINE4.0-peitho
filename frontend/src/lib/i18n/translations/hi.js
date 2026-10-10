@@ -476,6 +476,26 @@ const hi = {
         strategyRationale: 'रणनीति का आधार',
         targetQuote: 'लक्षित भाव',
         recommendation: 'इंजन अनुशंसा',
+    },
+    reminders: {
+        title: 'स्मरण और कैलेंडर',
+        addReminder: 'स्मरण जोड़ें',
+        editReminder: 'स्मरण संपादित करें',
+        noReminders: 'अभी तक कोई प्रतिबद्धता नहीं मिली',
+        myAction: 'विक्रेता कार्य',
+        buyerAction: 'खरीदार कार्य',
+        mutualAction: 'आपसी प्रतिबद्धता',
+        snooze1h: '+1 घंटा',
+        snooze1d: '+1 दिन',
+        done: 'पूर्ण',
+        missed: 'छूट गया',
+        needsReview: 'समीक्षा आवश्यक',
+        timeAssumed: 'अनुमानित समय (सुबह 10 बजे)',
+        agenda: 'कार्यसूची',
+        month: 'माह',
+        week: 'सप्ताह',
+        today: 'आज',
+        sendTest: 'परीक्षण ईमेल अभी भेजें',
     }
 };
 

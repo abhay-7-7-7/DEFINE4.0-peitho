@@ -30,6 +30,12 @@ from .analytics import analytics_router
 from .infrastructure.database.session import close_pool as close_mysql_pool
 from .call_feature import voice_router
 from .peitho.routes import peitho_router
+from .peitho.reminders import (
+    reminders_router,
+    ensure_reminder_tables,
+    start_reminder_scheduler,
+    stop_reminder_scheduler,
+)
 
 # Import competitive intelligence router from buisness anlytics module
 import sys, os
@@ -53,7 +59,15 @@ async def lifespan(app: FastAPI):
         env=settings.env,
         debug=settings.debug,
     )
+    # Ensure reminders tables and launch background delivery scheduler
+    try:
+        await ensure_reminder_tables()
+        start_reminder_scheduler()
+    except Exception as e:
+        logger.error("reminder_startup_error", error_type=type(e).__name__)
+
     yield
+    await stop_reminder_scheduler()
     await close_mysql_pool()
     logger.info("shutting_down_application")
 
@@ -181,6 +195,7 @@ def create_app() -> FastAPI:
     app.include_router(market_comparison_router)
     app.include_router(voice_router)
     app.include_router(peitho_router)
+    app.include_router(reminders_router)
     
     # Root endpoint
     @app.get("/", tags=["Root"])

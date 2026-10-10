@@ -311,3 +311,60 @@ Emitted when the human rep verbalizes an explicit counter-offer, keeping PRANE-X
   "timestamp": 1728475205.891
 }
 ```
+
+---
+
+## 4. Live Reminders & Commitment Protocol (Additive)
+
+### 4.1 Inbound: Client Reminder Action (`reminder_action`)
+Sent by the seller from the live call copilot interface to confirm or dismiss a detected reminder.
+```json
+{
+  "type": "reminder_action",
+  "id": 42,
+  "action": "confirm" // "confirm" | "dismiss"
+}
+```
+
+### 4.2 Outbound: Reminder Detected (`reminder_detected`)
+Pushed to the seller in real-time when the detection engine identifies a future commitment, callback, delivery, or meeting.
+```json
+{
+  "type": "reminder_detected",
+  "reminder": {
+    "id": 42,
+    "title": "Send revised pricing quote with volume tier",
+    "note": "Mentioned palletized freight discount",
+    "due_at": "2026-10-17T15:00:00+05:30",
+    "all_day": false,
+    "owner": "seller",
+    "confidence": "high",
+    "source": "detected",
+    "needs_review": false,
+    "time_assumed": false
+  }
+}
+```
+
+### 4.3 Outbound: Reminder Updated (`reminder_updated`)
+Pushed whenever a reminder's time, title, or status is modified during or outside the call.
+```json
+{
+  "type": "reminder_updated",
+  "reminder": {
+    "id": 42,
+    "title": "Send revised pricing quote with volume tier",
+    "due_at": "2026-10-17T16:00:00+05:30",
+    "status": "active"
+  }
+}
+```
+
+### 4.4 Outbound: Reminder Deleted (`reminder_deleted`)
+```json
+{
+  "type": "reminder_deleted",
+  "id": 42
+}
+```
+

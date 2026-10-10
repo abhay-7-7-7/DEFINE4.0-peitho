@@ -14,10 +14,32 @@ export default {
           maroon: '#78290F',     // Dark red/maroon
         },
         // Semantic aliases
-        primary: '#FF7D00',
-        secondary: '#15616D',
-        accent: '#FF7D00',
+        primary: {
+          DEFAULT: '#FF7D00',
+          foreground: '#001524'
+        },
+        secondary: {
+          DEFAULT: '#15616D',
+          foreground: '#FFECD1'
+        },
+        accent: {
+          DEFAULT: '#FF7D00',
+          foreground: '#001524'
+        },
         background: '#FFECD1',
+        foreground: 'hsl(var(--foreground))',
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))'
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))'
+        },
+        info: {
+          DEFAULT: 'hsl(var(--info))',
+          foreground: 'hsl(var(--info-foreground))'
+        },
         // Legacy colors for compatibility
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -38,6 +60,12 @@ export default {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+      },
+      borderWidth: {
+        '3': '3px',
+        '4': '4px',
+        '5': '5px',
+        '6': '6px',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -61,6 +89,7 @@ export default {
         'shake': 'shake 0.5s ease-in-out',
         'marquee': 'marquee 20s linear infinite',
         'pulse-slow': 'pulse 3s ease-in-out infinite',
+        'pulse-badge': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
       },
       keyframes: {

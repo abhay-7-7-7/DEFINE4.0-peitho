@@ -1,6 +1,7 @@
 import { TrendingUp, Github, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../context/I18nContext';
+import logoImg from '../assets/logo.jpeg';
 
 export default function Footer() {
   const { t } = useI18n();
@@ -12,9 +13,11 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-neo-orange border-[2px] border-neo-cream p-1.5">
-                <TrendingUp className="w-5 h-5 text-neo-navy" />
-              </div>
+              <img
+                src={logoImg}
+                alt="Peitho Logo"
+                className="w-8 h-8 object-contain rounded border-2 border-neo-cream shadow-sm"
+              />
               <span className="font-heading text-xl font-bold">
                 PEI<span className="text-neo-orange">THO</span>
               </span>

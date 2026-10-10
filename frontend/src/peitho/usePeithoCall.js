@@ -9,6 +9,7 @@
  * Receives live transcripts, PRANE-X engine recommendations, and tactical reply suggestions.
  */
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { getAuthToken } from '../lib/api';
 
 // URL helper
 function getBackendUrls() {
@@ -45,13 +46,13 @@ function pcmToBase64(pcmData) {
   return btoa(binary);
 }
 
-export function usePeithoCall() {
+export function usePeithoCall({ initialLanguage = 'en', onReminderEvent = null } = {}) {
   const [status, setStatus] = useState('idle'); // idle | starting | active | ending | ended | error
   const [sessionId, setSessionId] = useState(null);
   const [error, setError] = useState(null);
   const [sttProvider, setSttProvider] = useState('ElevenLabs');
 
-  const [language, setLanguage] = useState('en'); // 'en' | 'hi' | 'auto'
+  const [language, setLanguage] = useState(initialLanguage); // 'en' | 'hi' | 'auto'
 
   // Per-channel live status indicators
   const [sellerStatus, setSellerStatus] = useState('connecting'); // connecting | live | error | inactive
@@ -371,10 +372,18 @@ export function usePeithoCall() {
         setError(msg.message || 'Server error');
         break;
 
+      case 'reminder_detected':
+      case 'reminder_updated':
+      case 'reminder_deleted':
+        if (onReminderEvent) {
+          onReminderEvent(msg);
+        }
+        break;
+
       default:
         break;
     }
-  }, [cleanupAudio]);
+  }, [cleanupAudio, onReminderEvent]);
 
   // Start Peitho Session
   const startCall = useCallback(async (sessionConfig, enableMeetAudio = true) => {
@@ -465,7 +474,9 @@ export function usePeithoCall() {
       audioContextRef.current = audioCtx;
 
       // 5. Connect WebSocket
-      const wsUrl = `${WS_BASE}/api/v1/peitho/ws/${activeSessionId}`;
+      const token = getAuthToken();
+      const tokenParam = token ? `?token=${encodeURIComponent(token)}` : '';
+      const wsUrl = `${WS_BASE}/api/v1/peitho/ws/${activeSessionId}${tokenParam}`;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
@@ -569,6 +580,18 @@ export function usePeithoCall() {
     setStatus('ended');
   }, [cleanupAudio]);
 
+  // Send reminder action (confirm | dismiss)
+  const sendReminderAction = useCallback((id, action) => {
+    const ws = wsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'reminder_action',
+        id: id,
+        action: action,
+      }));
+    }
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -609,5 +632,6 @@ export function usePeithoCall() {
     isDealLocked,
     lockedDealData,
     lockDeal,
+    sendReminderAction,
   };
 }

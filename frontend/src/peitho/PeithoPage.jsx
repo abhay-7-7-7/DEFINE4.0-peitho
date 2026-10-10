@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { usePeithoCall } from './usePeithoCall';
 import { useI18n } from '../context/I18nContext';
+import { RemindersCallStrip, CallSummaryReminders, useReminders } from './reminders';
 
 const TranscriptItem = React.memo(function TranscriptItem({ t }) {
   const isSeller = t.channel === 'SELLER';
@@ -803,7 +804,21 @@ export default function PeithoPage() {
     isDealLocked,
     lockedDealData,
     lockDeal,
-  } = usePeithoCall();
+    sendReminderAction,
+  } = usePeithoCall({ initialLanguage: 'en', onReminderEvent: (msg) => handleReminderWsEvent(msg) });
+
+  const {
+    reminders,
+    highlightedId,
+    create: createReminder,
+    update: updateReminder,
+    remove: deleteReminder,
+    snooze: snoozeReminder,
+    markDone: markDoneReminder,
+    sendTest: sendTestReminder,
+    handleWsEvent: handleReminderWsEvent,
+    prefs: reminderPrefs,
+  } = useReminders();
 
   const i18n = useI18n ? useI18n() : null;
   const t = useCallback((key, fallback) => (i18n?.t ? i18n.t(key) : fallback || key), [i18n]);
@@ -1080,7 +1095,21 @@ export default function PeithoPage() {
 
       {/* ── PRE-CALL SETUP / LAUNCH SCREEN ── */}
       {!isCallActive && (
-        <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-8 flex flex-col justify-center">
+        <main className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-8 flex flex-col justify-center space-y-6">
+          {/* Post-Call Reminders Summary if call just ended */}
+          {status === 'ended' && (
+            <CallSummaryReminders
+              reminders={reminders}
+              callId={sessionId}
+              onUpdate={updateReminder}
+              onDelete={deleteReminder}
+              onCreate={createReminder}
+              onSendTest={sendTestReminder}
+              timezone={reminderPrefs?.timezone || 'Asia/Kolkata'}
+              t={t}
+            />
+          )}
+
           <div className="neo-card p-6 sm:p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-neo-teal text-neo-cream text-xs font-heading font-black px-4 py-1 border-b-2 border-l-2 border-neo-navy uppercase tracking-wider">
               PRANE-X Advisory Engine
@@ -1416,6 +1445,20 @@ export default function PeithoPage() {
               isDealLocked={isDealLocked}
               lockedDealData={lockedDealData}
               onOpenLockModal={() => setShowLockDealModal(true)}
+              t={t}
+            />
+
+            {/* Live Reminders & Commitments Feed */}
+            <RemindersCallStrip
+              reminders={reminders}
+              highlightedId={highlightedId}
+              onUpdate={updateReminder}
+              onDelete={deleteReminder}
+              onSnooze={snoozeReminder}
+              onMarkDone={markDoneReminder}
+              onCreate={createReminder}
+              onSendTest={sendTestReminder}
+              timezone={reminderPrefs?.timezone || 'Asia/Kolkata'}
               t={t}
             />
 

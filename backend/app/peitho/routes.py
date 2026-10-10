@@ -154,6 +154,19 @@ async def peitho_websocket(
     await websocket.accept()
     logger.info("peitho_ws_connected", session_id=session_id)
 
+    # Resolve user ownership from query token if present
+    user_id = 1
+    if token:
+        try:
+            import jwt as pyjwt
+            payload = pyjwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
+            user_id = int(payload.get("sub") or payload.get("id") or 1)
+        except Exception:
+            pass
+
+    from .reminders import process_line_for_reminders, reminder_ws_manager
+    await reminder_ws_manager.register(session_id, websocket, user_id=user_id)
+
     # State tracking for channels and provider
     channel_states = {
         "provider": (session.config.stt_provider or settings.peitho_stt_provider or "typed").lower(),
@@ -279,6 +292,18 @@ async def peitho_websocket(
             "timestamp": line.timestamp,
         })
 
+        # Non-blocking background reminder detection (zero latency impact on advisory)
+        asyncio.create_task(
+            process_line_for_reminders(
+                user_id=user_id,
+                session_id=session_id,
+                channel="SELLER",
+                text=text,
+                transcript_history=session.transcript_history,
+                safe_send=safe_send,
+            )
+        )
+
         detected_price = AdvisoryEngine.apply_seller_line(session.master_state, text)
         if detected_price is not None:
             await safe_send({
@@ -392,6 +417,18 @@ async def peitho_websocket(
             "timestamp": t2,
             "is_merged": is_merge,
         })
+
+        # Non-blocking background reminder detection (zero latency impact on advisory)
+        asyncio.create_task(
+            process_line_for_reminders(
+                user_id=user_id,
+                session_id=session_id,
+                channel="BUYER",
+                text=effective_text,
+                transcript_history=session.transcript_history,
+                safe_send=safe_send,
+            )
+        )
 
         # ── Update Objections State ──
         lower_eff = effective_text.lower()
@@ -831,6 +868,17 @@ async def peitho_websocket(
                     "timestamp": time.time(),
                 })
 
+            elif msg_type == "reminder_action":
+                # Client action on a detected reminder (confirm / dismiss)
+                r_id = msg.get("id")
+                r_act = msg.get("action")
+                if r_id and r_act:
+                    from .reminders.db import update_reminder
+                    if r_act == "confirm":
+                        await update_reminder(user_id, int(r_id), {"status": "active", "confidence": "high"})
+                    elif r_act == "dismiss":
+                        await update_reminder(user_id, int(r_id), {"status": "cancelled"})
+
             elif msg_type == "end_call":
                 logger.info("peitho_call_ended_by_user", session_id=session_id)
                 await safe_send({
@@ -844,6 +892,18 @@ async def peitho_websocket(
     except Exception as e:
         logger.error("peitho_ws_unhandled_error", error_type=type(e).__name__, session_id=session_id)
     finally:
+        try:
+            await reminder_ws_manager.unregister(session_id, websocket, user_id=user_id)
+            from .reminders.scheduler import send_call_summary_email
+            asyncio.create_task(
+                send_call_summary_email(
+                    user_id=user_id,
+                    session_id=session_id,
+                    product_name=session.config.product_name,
+                )
+            )
+        except Exception:
+            pass
         try:
             await seller_stt.close()
             await buyer_stt.close()
