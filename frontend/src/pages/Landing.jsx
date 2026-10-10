@@ -309,7 +309,7 @@ export default function Landing() {
               {/* Main Headline with generous line-height to prevent ascender clipping */}
               <div className="space-y-1.5 pt-0.5">
                 <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-heading font-black text-neo-navy uppercase leading-[1.08] tracking-tight">
-                  PROFIT <span className="text-neo-orange">&gt;</span> DEAL CLOSURE.
+                  PEI<span className="text-neo-orange">THO</span>
                 </h1>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-heading font-bold text-neo-teal tracking-tight leading-snug">
                   Deterministic AI Negotiation With Guaranteed Margin Floors.
