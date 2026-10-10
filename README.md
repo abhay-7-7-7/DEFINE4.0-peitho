@@ -1,6 +1,6 @@
 # Peitho Mobile
 
-Peitho Mobile is a Flutter application for TradeMind's seller-assisted product negotiation workflow. It provides authenticated tools for sellers and a separate, token-based chat experience for buyers joining a negotiation.
+Peitho Mobile is a Flutter application for Peitho's seller-assisted product negotiation workflow. It provides authenticated tools for sellers and a separate, token-based chat experience for buyers joining a negotiation.
 
 The app connects to a TradeMind-compatible FastAPI backend over HTTP and WebSockets. The backend is not included in this repository.
 
