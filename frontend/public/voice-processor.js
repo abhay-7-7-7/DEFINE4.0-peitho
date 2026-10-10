@@ -26,6 +26,7 @@ class VoiceProcessor extends AudioWorkletProcessor {
         this._isSpeaking = false;
         this._silenceFrames = 0;
         this._speechFrames = 0;
+        this._hangoverFrames = 0;
         // Buffer to accumulate ~100ms of audio before sending
         this._buffer = new Float32Array(0);
         this._bufferTarget = 4800; // ~100ms at 48kHz
@@ -63,21 +64,25 @@ class VoiceProcessor extends AudioWorkletProcessor {
         if (rms > this._vadThreshold) {
             this._speechFrames++;
             this._silenceFrames = 0;
-            if (!this._isSpeaking && this._speechFrames >= 3) {
+            this._hangoverFrames = 40; // ~100ms hangover window
+            if (!this._isSpeaking && this._speechFrames >= 2) {
                 this._isSpeaking = true;
                 this.port.postMessage({ type: 'speech' });
             }
         } else {
             this._silenceFrames++;
             this._speechFrames = 0;
-            if (this._isSpeaking && this._silenceFrames >= 30) { // ~80ms silence
+            if (this._hangoverFrames > 0) {
+                this._hangoverFrames--;
+            }
+            if (this._isSpeaking && this._silenceFrames >= 20) { // ~50ms silence
                 this._isSpeaking = false;
                 this.port.postMessage({ type: 'silence' });
             }
         }
 
-        // If muted or silent, skip sending audio
-        if (this._muted || !this._isSpeaking) return true;
+        // If muted or completely silent past hangover, skip sending audio
+        if (this._muted || (!this._isSpeaking && this._hangoverFrames <= 0)) return true;
 
         // Accumulate into buffer
         const newBuf = new Float32Array(this._buffer.length + channelData.length);

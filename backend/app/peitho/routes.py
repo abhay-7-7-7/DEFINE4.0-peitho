@@ -378,14 +378,14 @@ async def peitho_websocket(
         pending_advisory_payload = None
 
         # ── VAD Merge Guard ──
-        # If previous line was BUYER within 1.0s and lacked terminal punctuation (. ! ?),
+        # If previous line was BUYER within 0.5s and lacked terminal punctuation (. ! ?),
         # merge with this line to treat as a continuous turn.
         prev_line = session.transcript_history[-1] if session.transcript_history else None
         is_merge = False
         if (
             prev_line
             and prev_line.channel == ChannelType.BUYER
-            and (t2 - prev_line.timestamp) <= 1.0
+            and (t2 - prev_line.timestamp) <= 0.5
             and not prev_line.text.rstrip().endswith((".", "!", "?"))
         ):
             # Cancel prior in-flight Stage 2 task

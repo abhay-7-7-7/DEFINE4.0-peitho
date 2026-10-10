@@ -61,9 +61,9 @@ class Settings(BaseSettings):
     elevenlabs_stt_model: str = "scribe_v2_realtime"
     elevenlabs_language: str = "en"
     elevenlabs_vad_threshold: float = 0.4
-    elevenlabs_vad_silence_threshold_secs: float = 0.7  # Reduced from 1.5s to cut ~800ms dead latency
-    elevenlabs_min_speech_duration_ms: int = 250
-    elevenlabs_min_silence_duration_ms: int = 300
+    elevenlabs_vad_silence_threshold_secs: float = 0.35  # Reduced from 0.7s to 0.35s for fast turn endpoint detection
+    elevenlabs_min_speech_duration_ms: int = 200
+    elevenlabs_min_silence_duration_ms: int = 180
 
     # Peitho Tactical Intel Generation
     peitho_intel_model: str = "google/gemini-2.5-flash"

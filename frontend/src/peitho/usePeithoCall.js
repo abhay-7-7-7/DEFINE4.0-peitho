@@ -149,6 +149,7 @@ export function usePeithoCall({ initialLanguage = 'en', onReminderEvent = null }
     const source = audioCtx.createMediaStreamSource(stream);
     const processor = audioCtx.createScriptProcessor(4096, 1, 1);
     let lastSendTs = Date.now();
+    let lastSpeechTs = Date.now();
 
     processor.onaudioprocess = (e) => {
       const ws = wsRef.current;
@@ -176,9 +177,18 @@ export function usePeithoCall({ initialLanguage = 'en', onReminderEvent = null }
       const now = Date.now();
       const isQuiet = rms < 0.003;
 
-      // Noise gate: only send quiet chunks if more than 1.5 seconds have elapsed (keepalive)
-      if (isQuiet && (now - lastSendTs < 1500)) {
-        return;
+      // Ultra-low-latency voice endpoint detection:
+      // When speaking, stream every chunk immediately.
+      // When speech pauses, continue streaming trailing quiet frames for 350ms
+      // so the STT engine's VAD detects turn completion immediately without waiting.
+      // During prolonged silence beyond 350ms, throttle keepalive to 300ms (down from 1500ms).
+      if (!isQuiet) {
+        lastSpeechTs = now;
+      } else {
+        const timeSinceSpeech = now - lastSpeechTs;
+        if (timeSinceSpeech > 350 && (now - lastSendTs < 300)) {
+          return;
+        }
       }
 
       lastSendTs = now;
