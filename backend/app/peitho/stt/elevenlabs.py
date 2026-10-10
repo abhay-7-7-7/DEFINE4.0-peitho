@@ -82,6 +82,7 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
         self._send_task: Optional[asyncio.Task] = None
         self._keepalive_task: Optional[asyncio.Task] = None
         self._closing = False
+        self._is_reconnecting = False
 
         # Content-free metrics
         self._audio_bytes_sent = 0
@@ -139,10 +140,9 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
             f"model_id={self._model_id}",
             "audio_format=pcm_16000",
             "commit_strategy=vad",
-            f"vad_threshold={self._vad_threshold}",
-            f"vad_silence_threshold_secs={self._vad_silence_threshold_secs}",
-            f"min_speech_duration_ms={self._min_speech_duration_ms}",
-            f"min_silence_duration_ms={self._min_silence_duration_ms}",
+            "keepalive_interval_ms=2000",
+            f"vad_silence_threshold_secs={self._vad_silence_threshold_secs or 0.5}",
+            f"vad_threshold={self._vad_threshold or 0.4}",
         ]
         lang = (self._language_code or "").strip().lower()
         if lang and lang not in ("auto", "none"):
@@ -153,10 +153,10 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
             "xi-api-key": self._api_key,
         }
 
-        # Handle websockets parameter change across versions
+        # Disable client ping timeout — ElevenLabs uses application keepalive
         connect_kwargs = {
-            "ping_interval": 20,
-            "ping_timeout": 10,
+            "ping_interval": None,
+            "ping_timeout": None,
         }
         try:
             sig = inspect.signature(websockets.connect)
@@ -196,6 +196,50 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
                 provider="elevenlabs",
                 error_type=type(e).__name__,
             )
+
+    async def _reconnect(self) -> None:
+        """Attempt to reconnect to ElevenLabs with exponential backoff on unexpected close."""
+        if self._closing or not self._api_key or self._is_reconnecting:
+            return
+
+        self._is_reconnecting = True
+        self._is_active = False
+        self._notify_status("connecting", "Reconnecting to ElevenLabs Scribe...")
+        logger.info("elevenlabs_reconnecting", channel=self.channel_name)
+
+        # Cancel active background tasks cleanly
+        for task in (self._receive_task, self._send_task, self._keepalive_task):
+            if task and not task.done() and task != asyncio.current_task():
+                task.cancel()
+
+        if self._ws:
+            try:
+                await self._ws.close()
+            except Exception:
+                pass
+            self._ws = None
+
+        try:
+            for delay in [0.5, 1.0, 2.0, 4.0]:
+                if self._closing:
+                    return
+                await asyncio.sleep(delay)
+                try:
+                    await self._connect()
+                    if self._is_active:
+                        logger.info("elevenlabs_reconnected_successfully", channel=self.channel_name)
+                        return
+                except Exception as e:
+                    logger.warning(
+                        "elevenlabs_reconnect_attempt_failed",
+                        channel=self.channel_name,
+                        error=type(e).__name__,
+                    )
+
+            self._is_active = False
+            self._notify_status("error", "Reconnection failed: ConnectionClosedError")
+        finally:
+            self._is_reconnecting = False
 
     def _on_task_done(self, t: asyncio.Task) -> None:
         """Done callback that logs background task exceptions by type only."""
@@ -248,14 +292,26 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
                     )
             except asyncio.CancelledError:
                 break
+            except (websockets.ConnectionClosed, websockets.ConnectionClosedError) as e:
+                logger.warning(
+                    "elevenlabs_send_connection_closed",
+                    channel=self.channel_name,
+                    error_type=type(e).__name__,
+                )
+                if not self._closing:
+                    asyncio.create_task(self._reconnect())
+                break
             except Exception as e:
-                self._is_active = False
-                self._notify_status("error", f"Send error: {type(e).__name__}")
                 logger.error(
                     "elevenlabs_send_error",
                     channel=self.channel_name,
                     error_type=type(e).__name__,
                 )
+                if not self._closing:
+                    asyncio.create_task(self._reconnect())
+                else:
+                    self._is_active = False
+                    self._notify_status("error", f"Send error: {type(e).__name__}")
                 break
 
     async def _keepalive_loop(self) -> None:
@@ -264,9 +320,9 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
         silence_frame = b"\x00" * 3200
         while not self._closing and self._is_active and self._ws:
             try:
-                await asyncio.sleep(4.0)
+                await asyncio.sleep(2.0)
                 idle_secs = time.time() - self._last_audio_send_time
-                if idle_secs >= 4.0 and self._is_active and self._ws:
+                if idle_secs >= 2.0 and self._is_active and self._ws:
                     # Enqueue silence keepalive
                     await self.send_audio(silence_frame)
             except asyncio.CancelledError:
@@ -324,14 +380,17 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
 
             except asyncio.CancelledError:
                 break
-            except websockets.ConnectionClosed as cc:
+            except (websockets.ConnectionClosed, websockets.ConnectionClosedError) as cc:
                 self._is_active = False
                 logger.warning(
                     "elevenlabs_connection_closed",
                     channel=self.channel_name,
                     close_code=getattr(cc, "code", None),
                 )
-                self._notify_status("error", f"Closed: code {getattr(cc, 'code', 'unknown')}")
+                if not self._closing:
+                    asyncio.create_task(self._reconnect())
+                else:
+                    self._notify_status("error", f"Closed: code {getattr(cc, 'code', 'unknown')}")
                 break
             except Exception as e:
                 self._is_active = False
@@ -340,7 +399,10 @@ class ElevenLabsSTTAdapter(BaseSTTAdapter):
                     channel=self.channel_name,
                     error_type=type(e).__name__,
                 )
-                self._notify_status("error", f"Receive error: {type(e).__name__}")
+                if not self._closing:
+                    asyncio.create_task(self._reconnect())
+                else:
+                    self._notify_status("error", f"Receive error: {type(e).__name__}")
                 break
 
     async def close(self) -> None:
