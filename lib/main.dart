@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/localization/app_localizations.dart';
 import 'core/router.dart';
 import 'core/theme/bk_theme.dart';
 import 'core/theme/bk_tokens.dart';
@@ -62,16 +63,18 @@ class BoldKitApp extends ConsumerWidget {
         ? customTokens.applyTo(BkTokens.dark)
         : BkTokens.dark;
 
+    final appLocale = ref.watch(appLocaleProvider);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: overlayStyle,
       child: MaterialApp.router(
-        title: 'BoldKit',
+        title: 'TradeMind',
         debugShowCheckedModeBanner: false,
         themeMode: themeMode,
         theme: BkTheme.light(lightTokens),
         darkTheme: BkTheme.dark(darkTokens),
-        // AnimatedTheme is baked into MaterialApp; the 200 ms tween gives a
-        // smooth cross-fade when the user toggles the switch.
+        locale: Locale(appLocale.localeCode),
+        supportedLocales: supportedLanguages.map((l) => Locale(l.code)).toList(),
         routerConfig: router,
       ),
     );
