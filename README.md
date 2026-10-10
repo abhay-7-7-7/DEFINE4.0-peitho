@@ -107,7 +107,7 @@ Peitho does three things: **Understand. Advise. Remember.**
 
 <!-- Replace with your deployed URL. If the project is not deployed, delete the link below and keep the sentence. -->
 
-[Visit Live Project](https://your-project-url.com/)
+[Visit Live Project]([https://your-project-url.com/](https://drive.google.com/drive/folders/1xigcN-tbZkOEwU_VARUbgWx327EvIOpI?usp=sharing))
 
 If you prefer to run it yourself, follow the [Setup Instructions](#setup-instructions). The whole system runs locally and works with zero external API keys.
 
